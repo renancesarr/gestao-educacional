@@ -1,55 +1,81 @@
 # Gestão acadêmica
 
-Vocabulário do domínio para instituições brasileiras de Educação Básica e Ensino Superior.
+Vocabulário do sistema que atende instituições brasileiras de Educação Básica e Ensino Superior. O MVP inclui os dois níveis.
 
-## Organização e escopo
+## Linguagem
+
+### Organização e ensino
 
 **Tenant**:
-Fronteira independente de dados, contas e configuração pertencente a uma única instituição/unidade atendida pelo sistema. Um tenant pode oferecer Educação Básica e graduação.
+Fronteira independente de dados, contas e configurações pertencente a uma única instituição/unidade. Um tenant pode oferecer mais de um nível de ensino.
 _Avoid_: Mantenedora como tenant, rede como tenant
 
 **Instituição/unidade**:
-Organização educacional individual que usa o sistema e corresponde a um tenant. Cada unidade mantém seus próprios dados e configurações.
+Organização educacional individual atendida pelo sistema e correspondente a um tenant.
 _Avoid_: Rede como sinônimo de tenant
 
-**MVP**:
-Primeira entrega do produto que atende Educação Básica e graduação desde o lançamento.
-_Avoid_: MVP de um único nível de ensino
+**Nível de ensino**:
+Categoria da oferta educacional, como Educação Básica ou graduação. Cada tenant administra regras acadêmicas próprias para cada nível que oferece.
+_Avoid_: Regra acadêmica única para todos os níveis
+
+### Vida acadêmica
+
+**Matrícula**:
+Vínculo de um aluno com um curso ou oferta educacional, pelo qual a instituição acompanha sua situação e seu progresso acadêmico.
+_Avoid_: Conta de aluno
 
 **Regra acadêmica**:
-Configuração de avaliação, frequência e situação acadêmica definida pelo tenant para um nível de ensino. Um tenant que oferece Educação Básica e graduação mantém configurações separadas por nível.
+Critérios de avaliação, frequência e situação acadêmica definidos pelo tenant para um nível de ensino.
 _Avoid_: Regra global da plataforma
 
 **Versão de regra acadêmica**:
-Edição imutável das regras de um nível de ensino, com vigência definida pelo tenant; cada ciclo iniciado permanece ligado à sua versão original, salvo transferência excepcional motivada e auditada.
-_Avoid_: Alteração retroativa silenciosa da regra
+Edição identificável das regras acadêmicas, definida pelo tenant para um nível de ensino e válida durante uma vigência. Cada ciclo acadêmico referencia a versão aplicada e mantém essa versão depois de iniciado, salvo transferência excepcional com motivo e auditoria.
+_Avoid_: Regra sem versão, alteração retroativa silenciosa
 
 **Ciclo acadêmico**:
-Intervalo em que uma matrícula aplica uma versão de regra acadêmica. Pode seguir um período comum da turma ou ter ritmo individual, como no EAD acelerado.
+Intervalo de uma matrícula ao qual se aplica uma versão de regra acadêmica. Pode acompanhar o período comum de uma turma ou ser individual e acelerado, como no EAD.
 _Avoid_: Calendário único para todos os alunos
 
-**Conta**:
-Identidade de autenticação administrada por um tenant, com login próprio e permissões próprias. A conta de aluno é separada da conta profissional, mesmo quando ambas pertencem à mesma pessoa e usam o mesmo CPF cadastrado.
-_Avoid_: Conta global da plataforma, conta única para aluno e profissional
+### Pessoas e acesso
 
 **Pessoa**:
-Indivíduo real identificado no contexto do tenant, que pode manter ao mesmo tempo um vínculo profissional e um vínculo de aluno/cliente. Seus perfis de aluno e profissional são separados e podem ter contas independentes. CPF identifica a pessoa, não concede acesso nem determina permissões.
-_Avoid_: Um cadastro por papel
+Indivíduo identificado no contexto de um tenant que pode ter perfis distintos, como aluno e profissional, simultaneamente. O CPF identifica a pessoa; não concede acesso nem define permissões.
+_Avoid_: Um cadastro acadêmico por papel
+
+**Conta**:
+Identidade de acesso administrada pelo tenant. Contas de aluno, profissional e responsável têm logins e permissões independentes, mesmo quando pertencem à mesma pessoa.
+_Avoid_: Conta global da plataforma, conta única para aluno e profissional
 
 **Conta de aluno**:
-Conta de acesso usada pela pessoa no papel de aluno/cliente, com login e permissões independentes da conta profissional.
+Conta usada pela pessoa em seu perfil de aluno, separada de suas contas profissional e de responsável.
 _Avoid_: Conta profissional
 
 **Conta profissional**:
-Conta de acesso usada pela pessoa em funções de trabalho no tenant, como professor ou equipe administrativa. Seus papéis autorizam operações profissionais e não concedem acesso à conta de aluno da mesma pessoa.
+Conta usada pela pessoa em suas funções de trabalho no tenant. Um profissional pode ter diferentes papéis profissionais sob sua conta, como professor e administrador.
 _Avoid_: Conta de aluno
 
+**Conta de responsável**:
+Conta própria do responsável legal, com acesso limitado aos alunos cujo vínculo foi aprovado.
+_Avoid_: Uso da conta do aluno pelo responsável
+
+**Vínculo de responsável**:
+Relação que associa uma conta de responsável a um aluno e delimita o acesso daquele responsável aos dados acadêmicos do aluno.
+_Avoid_: Acesso sem vínculo, acesso a outros alunos
+
+**Acesso de responsável**:
+Consulta aos dados acadêmicos e documentos disponíveis dos alunos vinculados. Não inclui notas internas da equipe, dados de outros alunos ou dados profissionais.
+_Avoid_: Acesso irrestrito ao cadastro do aluno
+
+### Registros e documentos
+
+**Registro de auditoria**:
+Evidência de uma ação relevante, com seu autor, momento, motivo e estado anterior quando aplicável.
+_Avoid_: Histórico sem autoria
+
 **Credencial demonstrativa**:
-Documento acadêmico emitido pelo MVP para Educação Básica ou graduação, identificado como demonstração e validável publicamente com tipo e critérios próprios do nível de ensino.
+Documento acadêmico de conclusão emitido pelo MVP para Educação Básica ou graduação, identificado como demonstrativo e regido pelos critérios do respectivo nível.
 _Avoid_: Documento oficial, assinatura oficial
 
-## Segurança e rastreabilidade
-
-**Autenticação multifator (MFA)**:
-Verificação adicional obrigatória para contas profissionais `TENANT_ADMIN` e `SUPER_ADMIN`.
-_Avoid_: MFA opcional para administradores
+**Validação pública**:
+Consulta de credencial emitida que informa seu status atual, instituição, curso ou tipo de credencial, datas e nome completo do titular. Não expõe CPF, data de nascimento, endereço, notas ou histórico; rascunhos não são consultáveis.
+_Avoid_: Consulta pública de rascunho, exposição do histórico acadêmico
