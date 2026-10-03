@@ -19,7 +19,12 @@ Use as fronteiras `identity`, `institution`, `people`, `academic`, `credential` 
 - Controllers/route handlers adaptam HTTP, validam entrada e chamam casos de uso.
 - Services aplicam regras, autorização e consistência, coordenando persistência e eventos. Auditoria não é requisito de implementação neste MVP.
 - Repositories/acesso Prisma concentram persistência; DTOs/schemas definem contratos e validação.
-- Aplique SOLID com abstrações proporcionais ao problema. Mantenha regras de negócio independentes de detalhes de transporte e infraestrutura.
+- **Prioridade de design — SOLID:** aplique os cinco princípios em toda alteração de código. Dê atenção especial ao Liskov Substitution Principle (LSP): cada implementação deve poder substituir seu contrato sem exigir precondições mais fortes, enfraquecer pós-condições ou violar invariantes. Para portas com vários adaptadores, teste o mesmo contrato contra cada implementação. Rejeite mudanças que quebrem substituibilidade; não aceite exceções silenciosas.
+- **Single Responsibility Principle (SRP):** cada classe e módulo tem uma responsabilidade coesa e uma razão principal para mudar. Cada arquivo deve manter um único foco; extraia tipos, componentes ou funções quando responsabilidades independentes passarem a compartilhar o arquivo.
+- **Open/Closed Principle (OCP):** permita variar comportamento por composição, políticas ou implementações de contratos, sem alterar código estável a cada novo caso. Introduza extensão quando houver necessidade concreta; evite abstrações especulativas.
+- **Interface Segregation Principle (ISP):** defina contratos pequenos, voltados aos clientes que os consomem. Clientes não devem depender de métodos que não usam; evite interfaces genéricas que agrupem capacidades independentes.
+- **Dependency Inversion Principle (DIP):** regras de domínio e casos de uso dependem de contratos próprios, não de detalhes de framework, banco ou transporte. Adaptadores implementam esses contratos, e a composição concreta ocorre nas bordas da aplicação.
+- Antes de concluir uma alteração, revise cada classe, arquivo, contrato e adaptador tocado: explique sua responsabilidade, identifique os pontos de extensão necessários e verifique a substituição entre implementações. Use testes primeiro para fixar contratos observáveis. Prefira a solução SOLID mais simples que satisfaça o requisito, sem criar camadas ou abstrações sem necessidade demonstrada.
 - Mantenha domínio e casos de uso independentes do mecanismo de persistência por contratos/portas; adapte consultas, transações, restrições e migrações dentro de cada adaptador. Durante o desenvolvimento do MVP e em todos os testes, use SQLite; não implemente, execute nem exija verificações PostgreSQL nesse período. Na passagem do MVP para homologação, migrar de SQLite para PostgreSQL. UUIDs e datas UTC são diretrizes do MVP. Inspecione manifests e configurações antes de assumir framework, ferramentas ou comandos já disponíveis.
 - Eventos representam fatos efetivamente ocorridos. Auditoria permanece requisito futuro do sistema completo, não um requisito transacional do MVP atual.
 - Normalize erros sem expor dados pessoais ou detalhes internos. Collector, Chain of Responsibility e Full-Chain Walk são opções a avaliar, não decisões já aprovadas.
@@ -54,3 +59,6 @@ Para mudanças de comportamento, teste o caso de uso e suas falhas relevantes. P
 - integridade das alterações críticas; auditoria permanece fora do MVP atual, conforme ADR 0016;
 - emissão, revogação, integridade e minimização na validação pública de credenciais.
 Use migrações controladas para mudanças de dados e explicite impactos sobre registros existentes. Ao concluir, informe o comportamento alterado, as verificações executadas e as limitações restantes. Distinga checks aprovados daqueles que não puderam ser executados.
+
+## Branches e integração
+Siga `docs/GIT-FLOW.md` para escolher a base e o tipo de branch. Toda alteração começa em uma branch de tarefa baseada em `dev-ai`; integre em `dev-ai` somente após aprovação do revisor dedicado definido em `docs/agents/dev-ai-reviewer.md`. Não integre diretamente em `dev` ou `master`.
