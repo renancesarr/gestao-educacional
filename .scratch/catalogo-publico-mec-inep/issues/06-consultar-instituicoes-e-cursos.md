@@ -6,8 +6,7 @@
 
 **Priority:** 1
 
-**Status:** ready-for-human
-
+**Status:** wontfix
 - [x] Pesquisar instituição por nome, município/UF e nome combinado com município/UF.
 - [x] Pesquisar instituição por curso e combinar curso com município/UF da oferta.
 - [x] Resultados apresentam fonte/situação e diferenciam IES e ofertas de curso.
@@ -21,3 +20,5 @@
 
 - Implementados `GET /api/platform/public-catalog/emec/search` e busca/paginação no painel SUPER_ADMIN. Página da interface: 20 registros; limite da API: 100. Combina nome da IES, curso e localidade da oferta; a autenticação e autorização ficam no servidor.
 - Verificações: `npm run test:all` passou, incluindo 66 testes unitários backend, 8 HTTP, 18 SQLite, 12 testes frontend, typechecks, lint, build Next.js e Cypress headed (1 jornada passou). O log completo foi salvo em `logs/log-teste-2026-10-03T06-15-41-777Z.txt`. Testes HTTP e SQLite direcionados também passaram.
+
+- **Reclassificação de escopo (2026-10-03):** `wontfix`. A ADR 0017 retirou operação/importação/consulta e-MEC do MVP; as IES/ofertas permanecem apenas no fixture local read-only. O ticket de substituição `.scratch/cursos-padrao-dados-locais/issues/01-sem-novas-integracoes-de-catalogo.md` e os E2Es 09/10 verificam a retirada. Não marcar como funcionalidade `done`, pois a proposta original foi superada.

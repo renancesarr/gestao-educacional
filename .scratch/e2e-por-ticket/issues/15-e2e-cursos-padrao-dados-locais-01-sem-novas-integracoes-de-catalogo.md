@@ -2,7 +2,7 @@
 **What to build:** O fluxo consulta dados INEP aprovados e não oferece chamadas/importações operacionais e-MEC; cadastro operacional continua manual.
 **Blocked by:** 01 — Executar um E2E por ID de ticket e salvar vídeo.
 **Priority:** 1
-**Status:** ready-for-human
+**Status:** done
 **Ticket de origem:** `.scratch/cursos-padrao-dados-locais/issues/01-sem-novas-integracoes-de-catalogo.md`
 - [x] Existe um spec Cypress independente para este ticket, com uma jornada focada e sem cenários de outros tickets.
 - [x] O fluxo usa a interface visível e a fixture/estado-base mínimo; falha claramente se os dados esperados estiverem ausentes.
@@ -14,3 +14,5 @@
 Especificação: [E2E isolado por ticket com vídeo](../spec.md). O comando usa o caminho identificador do ticket de origem e não executa a suíte completa.
 
 - 2026-10-03: Cypress headed passou (1/1), consultando escola local e confirmando ausência de ações e-MEC. Evidência: `logs/e2e/cursos-padrao-dados-locais/01-sem-novas-integracoes-de-catalogo/2026-10-03T11-17-50-194Z/videos/01-sem-novas-integracoes-de-catalogo.cy.ts.mp4`; log: `logs/e2e/cursos-padrao-dados-locais/01-sem-novas-integracoes-de-catalogo/2026-10-03T11-17-50-194Z/run.txt`.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos; a execução isolada registrada em `logs/e2e/cursos-padrao-dados-locais/01-sem-novas-integracoes-de-catalogo/2026-10-03T11-17-50-194Z/run.txt` terminou com `All specs passed!` e o vídeo `logs/e2e/cursos-padrao-dados-locais/01-sem-novas-integracoes-de-catalogo/2026-10-03T11-17-50-194Z/videos/01-sem-novas-integracoes-de-catalogo.cy.ts.mp4` existe. O comando por ticket seleciona uma única jornada visível e mantém as evidências locais.

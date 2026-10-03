@@ -6,8 +6,7 @@
 
 **Priority:** 1
 
-**Status:** ready-for-human
-
+**Status:** done
 - [x] Criar um fixture SQLite separado da base operacional, com uma escola por cada combinação município/UF presente no CSV do INEP (5.567 nas fontes atuais) e todos os campos/etapas publicados dessa escola.
 - [x] Incluir uma IES por cada uma das 27 UFs, escolhida deterministicamente pelo menor código e-MEC entre as IES com ofertas; incluir o registro completo e todas as ofertas associadas a cada IES (5.358 ofertas nos arquivos atuais).
 - [x] Preservar códigos e rótulos externos como publicados, sem criar tenants, pessoas, vínculos, matrículas ou cursos operacionais.
@@ -20,3 +19,5 @@
 ## Comments
 
 - 2026-10-03: fixture gerado pelo script de construção, 5,7 MB, com 5.567 escolas, 27 IES e 5.358 ofertas. `PRAGMA integrity_check` retornou `ok`; leitura por município/UF, listagem das 27 IES e primeira página de ofertas passaram com banco read-only. `npm run test:sqlite` (17 testes) e Cypress headed (1 jornada visível) passaram. Nenhum arquivo SQLite anterior existia no projeto; o banco operacional não foi tocado. Pronto para revisão humana.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos com a especificação vigente, implementação e evidências de teste; E2E isolado correspondente passou (`logs/e2e/catalogo-listagem-sqlite/01-fixture-catalogo-e-testes-listagem/2026-10-03T11-10-15-508Z/run.txt`) e produziu o vídeo `logs/e2e/catalogo-listagem-sqlite/01-fixture-catalogo-e-testes-listagem/2026-10-03T11-10-15-508Z/videos/01-fixture-catalogo-e-testes-listagem.cy.ts.mp4`. A regressão ampla mais recente passou por unitários, HTTP, SQLite, typechecks, lint e build; o comando agregado também executou os 33 specs em sequência e encontrou 4 falhas de estado compartilhado. Essas falhas não reproduzem nos comandos isolados por ticket e ficam acompanhadas pelo ticket 35 de infraestrutura E2E.

@@ -1,7 +1,7 @@
 # 03: Persistir onboarding institucional e escopo em SQLite
 **What to build:** a criação de uma instituição com seu escopo educacional inicial pode ser verificada em SQLite em memória, incluindo o primeiro `TENANT_ADMIN` e as evidências de auditoria, sem conexão externa de banco.
 **Blocked by:** 01 — Executar integração de identidade e sessões com SQLite; 02 — Persistir pessoas e auditoria em SQLite.
-**Status:** ready-for-human
+**Status:** done
 - [x] O adaptador SQLite persiste tenant, escopo educacional, primeira conta `TENANT_ADMIN`, auditorias institucionais e auditoria de plataforma na mesma transação.
 - [x] Auditoria de plataforma preserva autoria `SUPER_ADMIN` e instituição-alvo sem tornar o evento propriedade do tenant.
 - [x] Código institucional duplicado não altera tenant, escopo, conta ou auditoria existentes.
@@ -10,3 +10,5 @@
 ## Comments
 Implementado pelo serviço público `createInstitution` com o adaptador SQLite em memória. Os testes confirmam os cinco códigos de escopo esperados, login do `TENANT_ADMIN`, separação entre auditoria institucional e de plataforma, duplicidade sem sobrescrita e rollback integral quando a gravação da auditoria de plataforma falha. A integração revelou e corrigiu a compatibilidade do contrato SQLite de auditoria para eventos de pessoa, instituição e conta. `npm run test:sqlite`, `npm test` e `npm run typecheck` passaram.
 Revisão pela ADR 0016: auditorias listadas aqui descrevem a implementação histórica, não requisito do MVP vigente. Remoção do runtime fica em ticket próprio; preserve o requisito de auditoria do sistema completo.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos com a especificação vigente, implementação e evidências de teste; E2E isolado correspondente passou (`logs/e2e/persistencia-adaptadores/03-onboarding-institucional-sqlite/2026-10-03T11-38-34-217Z/run.txt`) e produziu o vídeo `logs/e2e/persistencia-adaptadores/03-onboarding-institucional-sqlite/2026-10-03T11-38-34-217Z/videos/03-onboarding-institucional-sqlite.cy.ts.mp4`. A regressão ampla mais recente passou por unitários, HTTP, SQLite, typechecks, lint e build; o comando agregado também executou os 33 specs em sequência e encontrou 4 falhas de estado compartilhado. Essas falhas não reproduzem nos comandos isolados por ticket e ficam acompanhadas pelo ticket 35 de infraestrutura E2E.

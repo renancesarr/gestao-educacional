@@ -6,8 +6,7 @@
 
 **Priority:** 1
 
-**Status:** ready-for-human
-
+**Status:** done
 - [x] Definir os campos mínimos de avaliação e a relação com curso/matéria.
 - [x] Definir como uma nota se vincula a aluno, avaliação e matrícula e quais valores são aceitos.
 - [x] Definir a granularidade do registro de frequência (por aula, dia ou outro período) e seus estados.
@@ -25,3 +24,5 @@ Decisão registrada: operadores podem transferir manualmente, pelo CRUD normal, 
 Contrato aprovado: avaliação por matéria (título, data acadêmica, pontuação máxima positiva); nota por matrícula + avaliação (de zero até o máximo da avaliação); frequência presente/ausente, única por matrícula + matéria + data. Operações apenas por `SUPER_ADMIN`; exclusão física, mas avaliação com notas é protegida contra exclusão. Sem média ou aprovação automática.
 
 Implementação concluída com os testes do ticket 02; contrato pronto para revisão humana.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos com a especificação vigente, implementação e evidências de teste; E2E isolado correspondente passou (`logs/e2e/avaliacoes-notas-frequencia/01-decisoes-de-crud/2026-10-03T11-29-58-679Z/run.txt`) e produziu o vídeo `logs/e2e/avaliacoes-notas-frequencia/01-decisoes-de-crud/2026-10-03T11-29-58-679Z/videos/01-decisoes-de-crud.cy.ts.mp4`. A regressão ampla mais recente passou por unitários, HTTP, SQLite, typechecks, lint e build; o comando agregado também executou os 33 specs em sequência e encontrou 4 falhas de estado compartilhado. Essas falhas não reproduzem nos comandos isolados por ticket e ficam acompanhadas pelo ticket 35 de infraestrutura E2E.

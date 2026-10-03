@@ -4,8 +4,7 @@
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-human
-
+**Status:** done
 - [x] A carga é iniciada pelo operador e usa somente interface ou arquivo oficial; antes de aplicar, mostra fonte, edição quando disponível, data de coleta, contagens e conflitos conhecidos.
 - [x] O mapeamento identifica os cabeçalhos usados pelo CSV do INEP fornecido em `CSV_DADOS_ABERTOS` e registra o contrato de campos/cobertura comprovado.
 - [x] O catálogo preserva identificadores, situação e rótulos publicados necessários à seleção da escola e ao escopo de Ensino Fundamental, Ensino Médio e EJA; não importa contatos nem dados de responsáveis.
@@ -27,3 +26,5 @@ Validação: testes unitários do backend (58), HTTP (6), SQLite (16), frontend 
 Atualização 2026-10-03: parser agora reconhece `Escola` e `Etapas e Modalidade de Ensino Oferecidas`, divide múltiplas etapas (Fundamental/Médio), mantém rótulos e não armazena telefone/endereço. A leitura local das 87.653 linhas produziu 83.376 registros importáveis, 1.850 rejeições e 2.426 registros fora do escopo. EJA sem etapa de Ensino Fundamental/Médio identificável é rejeitada em vez de inferida. A especificação local cobre os cabeçalhos e minimização; falta executar a integração completa do arquivo através da prévia e armazenamento para fechar o ticket.
 
 Atualização 2026-10-03: busca da versão vigente agora aceita nome, código INEP, município/UF e combinação dos filtros, com limite de 100 registros. A tela administrativa exibe esses filtros. Serviço/memória, contrato HTTP, SQLite, API do frontend e Cypress foram atualizados. A integração percorre o CSV INEP fornecido pela prévia, aplicação e busca SQLite: 83.376 registros válidos, 1.850 rejeitados e consulta por nome, município e UF aprovada. Testes unitários/SQLite, typecheck e lint passaram; teste HTTP passou com loopback habilitado; Cypress headed passou com 1 cenário visível. Implementação pronta para revisão humana.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos com a especificação vigente, implementação e evidências de teste; E2E isolado correspondente passou (`logs/e2e/catalogo-publico-mec-inep/01-catalogo-inep-escolas/2026-10-03T11-12-18-031Z/run.txt`) e produziu o vídeo `logs/e2e/catalogo-publico-mec-inep/01-catalogo-inep-escolas/2026-10-03T11-12-18-031Z/videos/01-catalogo-inep-escolas.cy.ts.mp4`. A regressão ampla mais recente passou por unitários, HTTP, SQLite, typechecks, lint e build; o comando agregado também executou os 33 specs em sequência e encontrou 4 falhas de estado compartilhado. Essas falhas não reproduzem nos comandos isolados por ticket e ficam acompanhadas pelo ticket 35 de infraestrutura E2E.

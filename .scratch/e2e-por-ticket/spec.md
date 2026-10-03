@@ -55,3 +55,9 @@ Manter um teste Cypress E2E separado para cada um dos 33 tickets existentes em `
 ## Further Notes
 
 O pacote possui um ticket de infraestrutura e um ticket E2E separado por cada ticket de origem ativo. O runner e os 33 specs estão implementados; todas as jornadas foram executadas individualmente em Electron headed e têm MP4/logs locais. O levantamento inicial encontrou 33 tickets `ready-for-human`; três tickets `wontfix` não fazem parte desta contagem. Fluxos sem superfície web, como emitir recuperação local, têm a operação coberta por testes direcionados e o passo de acesso/ativação confirmado pela jornada visível.
+
+## Revisão e próximo trabalho
+
+Em 2026-10-03, os 33 specs de ticket foram revisados com execução individual aprovada, log e MP4. O ticket de infraestrutura e os 33 tickets E2E foram aceitos. Dois tickets funcionais antigos do e-MEC foram reclassificados como `wontfix` pela ADR 0017; E2Es correspondentes validam a remoção da operação.
+
+A revisão ampla executou os 34 specs no mesmo backend em memória: 30 passaram e quatro falharam após estado compartilhado (avaliação duplicada, curso extra, conta SUPER_ADMIN já ativada e colaborador de cenário alterado). Como a regra aprovada é executar somente o E2E do ticket afetado, o próximo ticket limita o E2E da suíte ampla à jornada-base e mantém os 33 specs disponíveis pelo runner seletivo.

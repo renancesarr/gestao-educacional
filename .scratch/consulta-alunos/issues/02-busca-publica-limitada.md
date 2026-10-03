@@ -6,8 +6,7 @@
 
 **Priority:** 1
 
-**Status:** ready-for-human
-
+**Status:** done
 - [x] Busca pública aceita CPF, nome, município/UF de nascimento e curso sem exigir autenticação, respeitando limites e paginação.
 - [x] Cada resultado público contém somente nome do aluno, curso e instituição; nunca CPF, data de nascimento, contatos ou outros campos pessoais.
 - [x] Busca pública usa um DTO e uma rota separados da resposta autenticada.
@@ -22,3 +21,5 @@
 - A consulta pública considera matrículas ativas em cursos ativos, conforme decisão conservadora documentada na especificação; a implementação continua restrita ao adaptador SQLite do MVP.
 - Verificado por `npm run test:all`: 74 testes unitários backend, 10 HTTP, 23 SQLite, 13 testes unitários frontend, typecheck/lint/build e 3 E2E visíveis no Cypress/Electron passaram.
 - Log da execução: `logs/log-teste-2026-10-03T08-54-44-014Z.txt`.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos com a especificação vigente, implementação e evidências de teste; E2E isolado correspondente passou (`logs/e2e/consulta-alunos/02-busca-publica-limitada/2026-10-03T10-36-47-426Z/run.txt`) e produziu o vídeo `logs/e2e/consulta-alunos/02-busca-publica-limitada/2026-10-03T10-36-47-426Z/videos/02-busca-publica-limitada.cy.ts.mp4`. A regressão ampla mais recente passou por unitários, HTTP, SQLite, typechecks, lint e build; o comando agregado também executou os 33 specs em sequência e encontrou 4 falhas de estado compartilhado. Essas falhas não reproduzem nos comandos isolados por ticket e ficam acompanhadas pelo ticket 35 de infraestrutura E2E.

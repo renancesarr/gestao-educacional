@@ -6,8 +6,7 @@
 
 **Priority:** 1
 
-**Status:** ready-for-human
-
+**Status:** done
 **Decisão confirmada:** busca autenticada será realizada pelo `SUPER_ADMIN` com instituição-alvo explícita em cada operação, conforme o modelo de operação centralizada do MVP.
 
 - [x] Buscar por CPF, nome, município/UF de nascimento e curso, permitindo combinar filtros com limites e paginação.
@@ -25,3 +24,5 @@
 - Verificado: `npm run test:all` passou integralmente, incluindo 73 testes unitários backend, 9 HTTP, 22 SQLite, typecheck/lint/build frontend, 12 testes unitários frontend e 2 E2E visíveis no Cypress/Electron.
 - Log da execução: `logs/log-teste-2026-10-03T08-39-12-253Z.txt`.
 - Nota de ambiente: o diretório não foi reconhecido como repositório Git; nenhum comando de alteração de histórico foi executado.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos com a especificação vigente, implementação e evidências de teste; E2E isolado correspondente passou (`logs/e2e/consulta-alunos/01-busca-autenticada/2026-10-03T10-54-00-058Z/run.txt`) e produziu o vídeo `logs/e2e/consulta-alunos/01-busca-autenticada/2026-10-03T10-54-00-058Z/videos/01-busca-autenticada.cy.ts.mp4`. A regressão ampla mais recente passou por unitários, HTTP, SQLite, typechecks, lint e build; o comando agregado também executou os 33 specs em sequência e encontrou 4 falhas de estado compartilhado. Essas falhas não reproduzem nos comandos isolados por ticket e ficam acompanhadas pelo ticket 35 de infraestrutura E2E.
