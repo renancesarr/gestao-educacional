@@ -1,0 +1,84 @@
+{
+  "edition": "Fixture acadêmico local 2026-10-03",
+  "preparedAt": "2026-10-03T12:00:00.000Z",
+  "source": "tests/fixtures/catalog-listing.sqlite (somente leitura)",
+  "catalogSha256": "603d861cc608e72c2c081fc499b69614cc7f8921f33d0acb604a60a231a5e62d",
+  "sources": {
+    "inepSchool": {
+      "sourceId": "11000023",
+      "name": "EEEE ABNAEL MACHADO DE LIMA - CENE",
+      "state": "RO",
+      "municipality": "Porto Velho"
+    },
+    "higherEducation": {
+      "institutionCode": "2",
+      "institutionName": "UNIVERSIDADE DE BRASÍLIA",
+      "courseSourceId": "101548",
+      "courseName": "ADMINISTRAÇÃO",
+      "municipality": "Brasília",
+      "state": "DF"
+    }
+  },
+  "scenarios": {
+    "school": {
+      "tenant": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "code": "fixture-escola-local",
+        "name": "EEEE ABNAEL MACHADO DE LIMA - CENE — cenário demonstrativo"
+      },
+      "collaboratorId": "00000000-0000-4000-8000-000000000004",
+      "courses": [
+        {
+          "id": "00000000-0000-4000-8000-000000000005",
+          "name": "Ensino Fundamental — Anos Iniciais (1º ao 5º ano)",
+          "code": "fund-anos-iniciais",
+          "subjects": 7
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000013",
+          "name": "Ensino Fundamental — Anos Finais (6º ao 9º ano)",
+          "code": "fund-anos-finais",
+          "subjects": 8
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000022",
+          "name": "Ensino Médio (1º ao 3º ano)",
+          "code": "medio-regular",
+          "subjects": 4
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000027",
+          "name": "Técnico em Administração",
+          "code": "tec-administracao",
+          "subjects": 8
+        }
+      ]
+    },
+    "higherEducation": {
+      "tenant": {
+        "id": "00000000-0000-4000-8000-000000000036",
+        "code": "fixture-ies-local",
+        "name": "UNIVERSIDADE DE BRASÍLIA — cenário demonstrativo"
+      },
+      "collaboratorId": "00000000-0000-4000-8000-000000000039",
+      "courses": [
+        {
+          "id": "00000000-0000-4000-8000-000000000040",
+          "name": "Bacharelado em Administração",
+          "code": "bach-administracao",
+          "subjects": 8
+        }
+      ],
+      "referenceInstitutionCode": "2",
+      "referenceCourseSourceId": "101548"
+    }
+  },
+  "expected": {
+    "tenants": 2,
+    "courses": 5,
+    "subjects": 35,
+    "enrollments": 0,
+    "auditEvents": 0,
+    "auditPlatformEvents": 0
+  }
+}

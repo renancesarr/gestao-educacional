@@ -1,0 +1,35 @@
+{
+  "name": "gestao-educacional",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.12.0"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/main.ts",
+    "dev": "node --env-file-if-exists=.env --watch src/main.ts",
+    "db:migrate": "node --env-file-if-exists=.env scripts/migrate.ts",
+    "db:provision": "node --env-file-if-exists=.env scripts/provision.ts",
+    "db:provision-super-admin": "node --env-file-if-exists=.env scripts/provision-super-admin.ts",
+    "db:recover-super-admin": "node --env-file-if-exists=.env scripts/provision-super-admin.ts --recover",
+    "fixture:academic:prepare": "node scripts/prepare-academic-scenario.ts",
+    "test:http": "node --test --test-isolation=none tests/http/*.test.ts",
+    "test:postgres": "node --test --test-isolation=none tests/postgres/*.test.ts",
+    "test:sqlite": "node --test --test-isolation=none tests/sqlite/*.test.ts",
+    "test": "npm run test:unit",
+    "test:unit": "node --test --test-isolation=none tests/unit/*.test.ts",
+    "test:all": "node scripts/run-tests.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "@types/pg": "8.23.1",
+    "typescript": "6.0.3"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "14.0.0",
+    "@simplewebauthn/server": "14.0.3",
+    "pg": "8.23.0"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "AGENTS.md": {
+    "sha256": "9986f6f6de2c6479adb41d2b36d354024815c8f717922e5fb3dffbd3a1898bf4",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "README.md": {
+    "sha256": "2e2f8b8420083ebbdd86d7dca0031dc9d246e7b1c7bdcc8ea3ca525705c17aa8",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/AGENTS.md": {
+    "sha256": "e76f7aefb454e2595b4dadfc8335692c2404038b6e06b3144a674dbac44b2a2c",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/AUDITORIA-DA-PASTA.md": {
+    "sha256": "5acb14cea0645d1bb92e28fee8a0bec91b4d8bd457e41f074483f72b220eb534",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/CONTEXT.md": {
+    "sha256": "b0993a1c1fdd1fdae7cd2839372088ae2b9492b2e7b62c734157c200dbb6f7c2",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/IDEIA.md": {
+    "sha256": "5da7151e0868423690b0edb9aa32f2eea6d95dbeadf35dbd9adcf4322afe4792",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/MATRICULA-E-CICLO.md": {
+    "sha256": "3398cd4e981b097fa4b0cf14cbf5078ff9e8a88c9da0288891c3dfd683ef88a4",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0001-tenant-por-instituicao.md": {
+    "sha256": "f810ec3dd9d4c8cc4a322311f6c4c21b86a9a3fa83fed023cf7cce40efd26ed6",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0002-contas-separadas-por-contexto-de-acesso.md": {
+    "sha256": "e8c847c88706ae1cb8874dd042f1065bd867ba3532b8ad19a8d15d1184e94408",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0003-regras-academicas-versionadas-por-ciclo.md": {
+    "sha256": "6947700797c29a8dbb427974e56e7964a9b1213b48512805789a33de0d9c8040",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0004-garantia-forte-de-auditoria-apos-mvp.md": {
+    "sha256": "9b81988c730389c6cd5b361888d7c2879502cdc370322536190e0edd02ec9540",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0005-acesso-global-do-super-admin-no-mvp.md": {
+    "sha256": "16a0278feba79eaec17c497a8596a116308c2a14b7645c1b4441a02061a9292d",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0006-matricula-pendente-e-ativacao-explicita.md": {
+    "sha256": "9d625ae9091ed0f0703679f30a7ef55e04943106ba39ec1e979680969d8b8fe9",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0007-calendario-e-progressao-por-oferta.md": {
+    "sha256": "981764b4d6df1c0aa4c3922678916c2c9dced9de33aec7b80b49686fbd217787",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0008-processamento-parcial-e-reenvio-de-lotes.md": {
+    "sha256": "78924982eeeb63e2bb8eae8e356fbbf04ef3ffe800f5d9586edbb1274cfc40d1",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0009-restricao-de-matriculas-por-instituicao.md": {
+    "sha256": "0d162434a1ee06d7c8ad7a977395f00597df148f046da77c74463db6493dc48e",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/adr/0010-calculo-academico-e-resultados-externos.md": {
+    "sha256": "59afada532307b9a16834249ff75b60a09b70bb2b75d686cb1b3019728c92b15",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/agents/domain.md": {
+    "sha256": "26b0ffe3bf8b268181476591063dc351cf279b931b5a7bc6ae9a4e4a174d528a",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/agents/issue-tracker.md": {
+    "sha256": "7dcda20a2eb4bdc89b95d1143423c0691309921cadae3132e6424f371030506e",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  },
+  "docs/agents/triage-labels.md": {
+    "sha256": "4f53c9b40ce2651e3611aa090eaedbd6dbc9b71ef8c5f7e65eac0d8263190d0d",
+    "mode": "0o664",
+    "uid": 1000,
+    "gid": 1000
+  }
+}

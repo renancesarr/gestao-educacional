@@ -1,0 +1,7 @@
+sandbox_mode = "workspace-write"
+
+web_search = "live"
+model_verbosity = "low"
+model_reasoning_summary = "none"
+[sandbox_workspace_write]
+network_access = true

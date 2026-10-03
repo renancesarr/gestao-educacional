@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pessoas · Gestão acadêmica</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/webauthn.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Ir para o conteúdo</a>
+  <header class="brand">Gestão acadêmica <span>Secretaria</span></header>
+  <main id="main">
+    <section id="login-panel" aria-labelledby="login-title">
+      <h1 id="login-title">Acesso institucional</h1>
+      <p class="intro">Entre com sua conta profissional para consultar e cadastrar pessoas.</p>
+      <form id="login-form">
+        <label for="institution">Código da instituição</label>
+        <input id="institution" name="institution" required maxlength="100" autocomplete="organization" autocapitalize="none" spellcheck="false">
+        <label for="username">Usuário</label>
+        <input id="username" name="username" required maxlength="100" autocomplete="username" autocapitalize="none" spellcheck="false">
+        <label for="password">Senha</label>
+        <input id="password" name="password" type="password" required maxlength="256" autocomplete="current-password">
+        <button type="submit">Entrar</button>
+      </form>
+      <details id="platform-access">
+        <summary>Acesso da plataforma</summary>
+        <form id="platform-login-form">
+          <label for="platform-username">Nome de usuário global</label>
+          <input id="platform-username" name="username" required maxlength="100" autocomplete="username" autocapitalize="none" spellcheck="false">
+          <button type="submit">Entrar com passkey</button>
+        </form>
+        <form id="platform-activation-form">
+          <h2>Ativar conta SUPER_ADMIN</h2>
+          <label for="activation-username">Nome de usuário global</label>
+          <input id="activation-username" name="username" required maxlength="100" autocomplete="username" autocapitalize="none" spellcheck="false">
+          <label for="activation-code">Código de ativação</label>
+          <input id="activation-code" name="activationCode" required maxlength="128" autocomplete="one-time-code">
+          <button type="submit">Cadastrar passkey</button>
+        </form>
+      </details>
+    </section>
+    <section id="platform-workspace" hidden aria-labelledby="platform-page-title">
+      <div class="institution-bar">
+        <div><span class="institution-label">Plataforma</span><strong id="platform-account-name"></strong></div>
+        <button id="platform-logout" class="secondary" type="button">Sair</button>
+      </div>
+      <h1 id="platform-page-title">Acesso global autenticado</h1>
+      <p class="intro">A conta SUPER_ADMIN está protegida por passkey. Cadastre uma instituição e seu primeiro administrador.</p>
+      <form id="institution-form">
+        <h2>Cadastrar instituição</h2>
+        <p class="help">Selecione o escopo educacional que a instituição oferece. Cursos serão cadastrados depois dentro deste escopo.</p>
+        <label for="institution-code">Código da instituição</label>
+        <input id="institution-code" name="code" required minlength="2" maxlength="100" pattern="[a-z0-9][a-z0-9-]{1,99}" autocapitalize="none" spellcheck="false">
+        <label for="institution-new-name">Nome da instituição</label>
+        <input id="institution-new-name" name="name" required maxlength="200">
+        <label for="tenant-admin-username">Usuário do TENANT_ADMIN</label>
+        <input id="tenant-admin-username" name="username" required maxlength="100" autocomplete="off" autocapitalize="none" spellcheck="false">
+        <label for="tenant-admin-password">Senha inicial do TENANT_ADMIN</label>
+        <input id="tenant-admin-password" name="password" type="password" required minlength="12" maxlength="256" autocomplete="new-password">
+        <fieldset id="institution-education-scope" aria-describedby="education-scope-help">
+          <legend>Escopo educacional <span class="optional">(selecione ao menos uma opção)</span></legend>
+          <label class="scope-option"><input type="checkbox" name="educationScope" data-level="BASIC" data-stage="FUNDAMENTAL"> Ensino Fundamental</label>
+          <label class="scope-option"><input type="checkbox" name="educationScope" data-level="BASIC" data-stage="FUNDAMENTAL" data-modality="EJA"> EJA · Ensino Fundamental</label>
+          <label class="scope-option"><input type="checkbox" name="educationScope" data-level="BASIC" data-stage="MEDIO"> Ensino Médio</label>
+          <label class="scope-option"><input type="checkbox" name="educationScope" data-level="BASIC" data-stage="MEDIO" data-modality="EJA"> EJA · Ensino Médio</label>
+          <label class="scope-option"><input type="checkbox" name="educationScope" data-level="HIGHER" data-course-type="GRADUACAO"> Graduação</label>
+          <small id="education-scope-help">Educação Infantil não faz parte do MVP.</small>
+        </fieldset>
+        <button type="submit">Criar instituição</button>
+      </form>
+      <div class="workspace-grid" aria-label="Validação global de pessoas">
+        <section aria-labelledby="global-person-create-title">
+          <h2 id="global-person-create-title">Cadastrar pessoa para uma instituição</h2>
+          <p class="help">Informe o ID interno da instituição nesta ação. Ele não fica selecionado na sessão.</p>
+          <form id="global-person-create-form">
+            <label for="global-create-target">ID interno da instituição</label>
+            <input id="global-create-target" name="targetTenantId" required maxlength="100" autocomplete="off">
+            <label for="global-create-name">Nome completo</label>
+            <input id="global-create-name" name="name" required maxlength="200" autocomplete="off">
+            <label for="global-create-cpf">CPF <span class="optional">(se disponível)</span></label>
+            <input id="global-create-cpf" name="cpf" maxlength="14" inputmode="numeric" autocomplete="off">
+            <label for="global-create-institutional-id">Identificador institucional</label>
+            <input id="global-create-institutional-id" name="institutionalId" maxlength="100" autocomplete="off">
+            <button type="submit">Cadastrar pessoa</button>
+          </form>
+        </section>
+        <section aria-labelledby="global-person-search-title">
+          <h2 id="global-person-search-title">Buscar pessoa para uma instituição</h2>
+          <form id="global-person-search-form">
+            <label for="global-search-target">ID interno da instituição</label>
+            <input id="global-search-target" name="targetTenantId" required maxlength="100" autocomplete="off">
+            <label for="global-search-kind">Buscar por</label>
+            <select id="global-search-kind"><option value="cpf">CPF</option><option value="institutionalId">Identificador institucional</option></select>
+            <label for="global-search-value">Identificador</label>
+            <input id="global-search-value" required maxlength="100" autocomplete="off">
+            <button type="submit" class="secondary">Buscar pessoa</button>
+          </form>
+          <p id="global-person-result" class="help" hidden></p>
+        </section>
+      </div>
+      <section aria-labelledby="global-course-create-title">
+        <h2 id="global-course-create-title">Cadastrar curso para uma instituição</h2>
+        <form id="global-course-create-form">
+          <label for="global-course-target">ID interno da instituição</label>
+          <input id="global-course-target" required maxlength="100" autocomplete="off">
+          <label for="global-course-name">Nome do curso</label>
+          <input id="global-course-name" required maxlength="200" autocomplete="off">
+          <label for="global-course-code">Código do curso</label>
+          <input id="global-course-code" required minlength="2" maxlength="100" pattern="[a-z0-9][a-z0-9-]{1,99}" autocapitalize="none" autocomplete="off">
+          <label for="global-course-scope">Escopo educacional</label>
+          <select id="global-course-scope"><option value="BASIC:FUNDAMENTAL">Ensino Fundamental</option><option value="BASIC:FUNDAMENTAL:EJA">EJA · Ensino Fundamental</option><option value="BASIC:MEDIO">Ensino Médio</option><option value="BASIC:MEDIO:EJA">EJA · Ensino Médio</option><option value="HIGHER:GRADUACAO">Graduação</option></select>
+          <button type="submit">Cadastrar curso</button>
+        </form>
+        <button id="global-course-list" type="button" class="secondary">Consultar cursos deste escopo</button>
+        <p id="global-course-result" class="help" hidden></p>
+        <h3>Atualizar curso</h3>
+        <form id="global-course-update-form">
+          <label for="global-course-id">ID interno do curso</label><input id="global-course-id" required autocomplete="off">
+          <label for="global-course-update-name">Novo nome</label><input id="global-course-update-name" maxlength="200" autocomplete="off">
+          <label class="scope-option"><input id="global-course-active" type="checkbox" checked> Curso ativo</label>
+          <button type="submit">Atualizar curso</button>
+        </form>
+      </section>
+      <section aria-labelledby="global-collaborator-title">
+        <h2 id="global-collaborator-title">Colaboradores da instituição</h2>
+        <form id="global-collaborator-create-form">
+          <label for="global-collaborator-target">ID interno da instituição</label><input id="global-collaborator-target" required autocomplete="off">
+          <label for="global-collaborator-person">ID interno da pessoa</label><input id="global-collaborator-person" required autocomplete="off">
+          <button type="submit">Vincular como colaborador</button>
+        </form>
+        <button id="global-collaborator-list" type="button" class="secondary">Consultar colaboradores</button>
+        <p id="global-collaborator-result" class="help" hidden></p>
+        <form id="global-collaborator-update-form">
+          <label for="global-collaborator-id">ID interno do colaborador</label><input id="global-collaborator-id" required autocomplete="off">
+          <label class="scope-option"><input id="global-collaborator-active" type="checkbox" checked> Colaborador ativo</label>
+          <button type="submit">Atualizar colaborador</button>
+        </form>
+      </section>
+      <section aria-labelledby="global-subject-title">
+        <h2 id="global-subject-title">PPC do curso</h2>
+        <form id="global-subject-create-form">
+          <label for="global-subject-target">ID interno da instituição</label><input id="global-subject-target" required autocomplete="off">
+          <label for="global-subject-course">ID interno do curso</label><input id="global-subject-course" required autocomplete="off">
+          <label for="global-subject-name">Nome da matéria</label><input id="global-subject-name" required maxlength="200">
+          <label for="global-subject-code">Código da matéria</label><input id="global-subject-code" required minlength="2" maxlength="100" pattern="[a-z0-9][a-z0-9-]{1,99}">
+          <label for="global-subject-hours">Carga horária em horas</label><input id="global-subject-hours" required type="number" min="1" step="1">
+          <label for="global-subject-collaborators">IDs dos colaboradores, separados por vírgula</label><input id="global-subject-collaborators" required>
+          <button type="submit">Adicionar matéria ao PPC</button>
+        </form>
+        <button id="global-subject-detail" type="button" class="secondary">Consultar curso e PPC</button>
+        <p id="global-subject-result" class="help" hidden></p>
+        <form id="global-subject-update-form">
+          <label for="global-subject-update-id">ID interno da matéria</label><input id="global-subject-update-id" required>
+          <label for="global-subject-update-name">Nome</label><input id="global-subject-update-name" maxlength="200">
+          <label for="global-subject-update-hours">Carga horária</label><input id="global-subject-update-hours" type="number" min="1" step="1">
+          <label for="global-subject-update-collaborators">IDs dos colaboradores, separados por vírgula</label><input id="global-subject-update-collaborators">
+          <label class="scope-option"><input id="global-subject-active" type="checkbox" checked> Matéria ativa</label>
+          <button type="submit">Atualizar matéria</button>
+        </form>
+      </section>
+      <section aria-labelledby="global-enrollment-title">
+        <h2 id="global-enrollment-title">Matrículas diretas</h2>
+        <form id="global-enrollment-create-form">
+          <label for="global-enrollment-target">ID interno da instituição</label><input id="global-enrollment-target" required autocomplete="off">
+          <label for="global-enrollment-course">ID interno do curso</label><input id="global-enrollment-course" required autocomplete="off">
+          <label for="global-enrollment-person">ID interno da pessoa</label><input id="global-enrollment-person" required autocomplete="off">
+          <button type="submit">Matricular no curso</button>
+        </form>
+        <label for="global-enrollment-filter">Filtrar matrículas por situação</label>
+        <select id="global-enrollment-filter"><option value="">Todas</option><option>ativa</option><option>trancada</option><option>cancelada</option><option>jubilada</option></select>
+        <button id="global-enrollment-list" type="button" class="secondary">Consultar matrículas</button>
+        <p id="global-enrollment-result" class="help" hidden></p>
+        <form id="global-enrollment-update-form">
+          <label for="global-enrollment-id">ID interno da matrícula</label><input id="global-enrollment-id" required autocomplete="off">
+          <label for="global-enrollment-status">Nova situação</label>
+          <select id="global-enrollment-status"><option>ativa</option><option>trancada</option><option>cancelada</option><option>jubilada</option></select>
+          <button type="submit">Atualizar matrícula</button>
+        </form>
+      </section>
+    </section>
+    <section id="workspace" hidden aria-labelledby="page-title">
+      <div class="institution-bar">
+        <div><span class="institution-label">Instituição</span><strong id="institution-name"></strong><span id="account-name"></span></div>
+        <button id="logout" class="secondary" type="button">Sair</button>
+      </div>
+      <h1 id="page-title">Pessoas</h1>
+      <p class="intro">Cadastre uma pessoa ou encontre um registro desta instituição.</p>
+      <div class="workspace-grid">
+        <section aria-labelledby="create-title">
+          <h2 id="create-title">Cadastrar pessoa</h2>
+          <p class="help" id="create-help">Informe o CPF ou um identificador institucional. O cadastro não cria uma matrícula.</p>
+          <form id="create-form" aria-describedby="create-help">
+            <fieldset id="create-fields">
+              <legend class="sr-only">Dados da pessoa</legend>
+              <label for="name">Nome completo</label>
+              <input id="name" name="name" required maxlength="200" autocomplete="off">
+              <label for="cpf">CPF <span class="optional">(se disponível)</span></label>
+              <input id="cpf" name="cpf" maxlength="14" inputmode="numeric" autocomplete="off" aria-describedby="cpf-help">
+              <small id="cpf-help">11 números, com ou sem pontuação.</small>
+              <label for="institutionalId">Identificador institucional</label>
+              <input id="institutionalId" name="institutionalId" maxlength="100" autocomplete="off" aria-describedby="identifier-help">
+              <small id="identifier-help">Obrigatório quando não houver CPF.</small>
+              <button type="submit">Cadastrar pessoa</button>
+            </fieldset>
+          </form>
+        </section>
+        <section class="search-panel" aria-labelledby="search-title">
+          <h2 id="search-title">Consultar pessoa</h2>
+          <form id="search-form">
+            <label for="search-kind">Buscar por</label>
+            <select id="search-kind" name="kind"><option value="cpf">CPF</option><option value="institutionalId">Identificador institucional</option></select>
+            <label for="search-value" id="search-label">CPF</label>
+            <input id="search-value" name="value" required maxlength="100" autocomplete="off">
+            <button type="submit" class="secondary">Consultar pessoa</button>
+          </form>
+          <section id="result" hidden aria-labelledby="result-name" tabindex="-1">
+            <h3 id="result-name"></h3>
+            <dl id="result-details"></dl>
+            <button id="audit-button" type="button" class="secondary" hidden>Consultar registro de criação</button>
+            <p id="audit-result" hidden></p>
+          </section>
+          <p id="empty-result" class="help">A consulta é limitada à instituição da sua conta.</p>
+        </section>
+      </div>
+    </section>
+    <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+  </main>
+</body>
+</html>

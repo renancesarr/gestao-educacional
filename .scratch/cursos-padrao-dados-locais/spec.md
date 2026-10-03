@@ -1,0 +1,54 @@
+# Cursos demonstrativos e dados locais para o MVP
+Status: ready-for-human
+## Problem Statement
+Precisamos exercitar os fluxos de curso, PPC, matérias e matrícula com exemplos que representem Educação Básica, Educação Profissional Técnica de nível médio e graduação. O MVP não deve depender de novas integrações externas nem apresentar exemplos de teste como currículo oficial aplicável a todas as instituições.
+## Solution
+Usar o CSV INEP já fornecido e o fixture SQLite de catálogo existente como dados locais de referência. Criar um cenário de teste separado e determinístico, com instituições de referência localmente reproduzidas como instituições operacionais fictícias/de teste, e cursos/matérias demonstrativos cadastrados por tenant. Incluir cursos de Fundamental, Médio, Técnico em Administração e Bacharelado em Administração. As fontes oficiais sustentam nomenclatura, etapas, áreas e perfil; cada tenant continua responsável pelo próprio PPC e componentes curriculares.
+## User Stories
+1. Como mantenedor do MVP, quero executar os fluxos usando apenas dados locais já aprovados, para não depender de serviços externos.
+2. Como mantenedor, quero que a lista de escolas de referência use os dados INEP locais, para cobrir Educação Básica com registros verdadeiros da base fornecida.
+3. Como responsável por testes, quero consultar IES e ofertas que já existem no fixture SQLite, para aproveitar a amostra atual sem importar novamente CSVs e-MEC.
+4. Como SUPER_ADMIN, quero cadastrar manualmente uma instituição quando ela precisar operar no sistema, para não confundir catálogo de referência com tenant.
+5. Como operador, quero registrar cursos e matérias para um tenant, para preparar um PPC e matricular alunos no curso apropriado.
+6. Como escola de Educação Básica, quero exemplos de Ensino Fundamental dos anos iniciais e finais, para demonstrar cursos com componentes adequados a cada etapa.
+7. Como escola, quero um curso demonstrativo de Ensino Médio, para exercitar seu PPC e matrícula.
+8. Como ofertante de educação profissional, quero um curso de Técnico em Administração e matérias exemplo, para exercitar um percurso técnico de nível médio.
+9. Como IES, quero um Bacharelado em Administração associado a uma instituição presente no fixture, para exercitar o fluxo de graduação sem integração nova.
+10. Como responsável por projeto pedagógico, quero alterar os cursos e matérias de cada tenant, para refletir sua proposta pedagógica própria.
+11. Como pessoa usuária, quero distinguir exemplos e seeds dos dados de referência oficial, para não presumir que são cadastros operacionais ou declarações de conformidade.
+12. Como responsável pela segurança, quero que o carregamento de dados de demonstração fique restrito às bases de teste, para nunca semear ou apagar dados operacionais.
+13. Como responsável por testes, quero que seeds sejam idempotentes e determinísticos, para repetir a preparação sem duplicar instituições, cursos ou matérias.
+14. Como responsável por qualidade, quero que os cenários cubram o escopo, PPC, componentes, matrícula individual e consultas associados, para verificar os caminhos de ponta a ponta.
+## Implementation Decisions
+- No MVP: escolas de referência vêm do CSV local INEP existente; o fixture SQLite `catalog-listing.sqlite` permanece como base read-only para consultas de teste, contendo escolas e as IES/ofertas já selecionadas. O fixture não é banco operacional.
+- Não executar novas integrações, consultas externas ou importações e-MEC pela aplicação. Dados de IES/cursos presentes na base de teste continuam utilizáveis localmente. Integrações futuras exigem novo escopo pós-MVP.
+- Instituição operacional, curso e matéria são cadastrados explicitamente no tenant. A escola/IES de referência não vira tenant nem recebe matrícula automaticamente. O cenário operacional de demonstração será isolado do fixture read-only de catálogo e do banco operacional.
+- O cenário inclui colaborador fictício e ativo de teste para associar aos componentes, pois a criação atual de matéria requer docente colaborador ativo.
+- O cenário terá cursos operacionais de demonstração: `Ensino Fundamental — Anos Iniciais (1º ao 5º ano)`, `Ensino Fundamental — Anos Finais (6º ao 9º ano)`, `Ensino Médio (1º ao 3º ano)`, `Técnico em Administração` e `Administração — Bacharelado`. O LDB define o Fundamental com nove anos e o Médio com duração mínima de três anos. Quando o curso superior for associado ao fixture, usar registro de Bacharelado em Administração encontrado na IES Universidade de Brasília; os identificadores devem ser descobertos deterministicamente a partir do fixture, sem fixar IDs de catálogo como IDs operacionais.
+- O escopo técnico existe como categoria distinta de `BASIC_MEDIO` e `HIGHER/GRADUACAO`. Formas integrada/concomitante/subsequente não são selecionadas por inferência nem simuladas como equivalentes ao curso: permanecem configuração específica de oferta fora deste pacote de seeds.
+- Para anos iniciais, matérias exemplo derivam dos componentes publicados na BNCC aplicáveis à etapa (Língua Portuguesa, Arte, Educação Física, Matemática, Ciências, História e Geografia; Ensino Religioso é opcional conforme a situação prevista na legislação). Para anos finais, acrescentar Língua Inglesa.
+- Para o Ensino Médio, matérias exemplo cobrem as áreas da BNCC/LDB vigente: Linguagens e suas Tecnologias, Matemática e suas Tecnologias, Ciências da Natureza e suas Tecnologias e Ciências Humanas e Sociais Aplicadas. Componentes/nomes demonstrativos não representam currículo obrigatório exaustivo nem carga horária definida.
+- O CNCT oficial consultado lista Técnico em Administração no eixo de Gestão e Negócios, com carga mínima de 800 horas e perfil ligado a gestão de pessoas, materiais/produção, serviços, finanças/orçamento, mercado, sistemas de informação, relatórios e apoio à decisão. A carga horária total das matérias demonstrativas do curso técnico deve somar pelo menos 800 horas como referência; sua distribuição por matéria é exemplo editável, não uma matriz prescrita pelo MEC. A forma de oferta não será escolhida nem inferida neste pacote.
+- O curso superior escolhido é Bacharelado em Administração porque há ofertas correspondentes no fixture do e-MEC. Seus componentes de teste (por exemplo, Administração Geral, Contabilidade, Economia, Finanças, Marketing, Pessoas, Operações e Métodos Quantitativos) são demonstrativos e não são apresentados como matriz nacional nem como PPC da UnB.
+- A implementação usa `academic-scenario.sqlite`, separado do catálogo `catalog-listing.sqlite` e do banco operacional. O comando `npm run fixture:academic:prepare` prepara uma vez e, nas execuções seguintes, valida a base existente sem substituí-la. O manifesto registra seleção e proveniência: uma escola INEP de Porto Velho/RO, código `11000023`, e a oferta de Bacharelado em Administração da Universidade de Brasília já presente no catálogo local.
+- A fixture acadêmica contém dois tenants demonstrativos, cinco cursos, 35 matérias, zero matrículas e zero eventos de auditoria. Cypress Electron headed consulta cursos e PPCs diretamente em adaptador read-only; o teste SQLite confirma integridade das duas bases e hash inalterado do catálogo.
+- Seeds são exclusivamente para teste/demonstração, com tenant/instituição operacional isolado e identificadores próprios. A execução não altera `catalog-listing.sqlite`, não toca a base padrão da aplicação, não chama rede e não cria matrículas automaticamente.
+- Preservar a fronteira `institution`/`academic`; curso pertence a tenant, matéria pertence ao curso/PPC. A aplicação de seeds usa os serviços públicos existentes sempre que possível; alterações necessárias no escopo passam pelo serviço de domínio e seus adaptadores.
+- Sem auditoria no MVP. Proveniência dos dados oficiais usados para criar exemplos fica em documentação do cenário, sem evento de auditoria operacional.
+## Testing Decisions
+- Testar pelo comportamento externo dos serviços de curso/PPC, adaptadores SQLite e jornada visível; não testar detalhes internos do script de seed.
+- Verificar que fixture de catálogo é lido em modo somente leitura e permanece inalterado, que bancos operacionais fora da configuração de teste não são alvos e que nenhuma chamada de rede é feita.
+- Rodar preparação duas vezes e verificar contagens estáveis, sem duplicar tenants, instituições, cursos ou matérias.
+- Verificar isolamento tenant-scoped, compatibilidade de escopo, vínculo entre curso/PPC/matérias, matrícula individual e persistência de registros acadêmicos sem matrícula automática durante o seed.
+- Usar como prior art as suítes `tests/sqlite`, o fixture read-only `catalog-listing.sqlite`, testes de `academic.createCourse`, PPC/matérias e a jornada Cypress headed existente. A verificação E2E deve abrir Electron de forma visível ao usuário conforme decisão prioritária do projeto.
+- Testes não devem depender de rede, arquivos CSV externos ao checkout nem de cadastro/importação em lote durante a execução normal.
+## Out of Scope
+- Integração de execução com e-MEC ou novas fontes; sincronização automática de escolas/IES/cursos.
+- Tratar o fixture de referência como cadastro operacional, converter dados de catálogo em tenant ou matricular alunos por seed.
+- Afirmar que matérias demonstrativas são grade oficial ou aplicável a todas as instituições.
+- Importar currículos, atos regulatórios, reconhecimento de curso ou credenciamento institucional.
+- Definir matrizes curriculares oficiais, carga total dos cursos Fundamental/Médio/graduação, duração, formas de oferta técnica ou regras acadêmicas.
+- Alterar/apagar bancos fora do diretório de fixtures de teste ou de uma base de cenário explicitamente autorizada.
+## Further Notes
+- A decisão de fonte local e de não incluir novas integrações no MVP está registrada na [ADR 0017](../../docs/adr/0017-dados-locais-e-cursos-demonstrativos-no-mvp.md), que atualiza o recorte da [ADR 0016](../../docs/adr/0016-escopo-atual-do-mvp.md).
+- Pesquisa oficial consultada em 2026-10-03: [INEP — Sinopses da Educação Básica](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/sinopses-estatisticas/educacao-basica); [BNCC do Ensino Fundamental](https://www.gov.br/mec/pt-br/escola-em-tempo-integral/BNCC_EI_EF_110518_versaofinal.pdf); [BNCC do Ensino Médio](https://www.gov.br/mec/pt-br/cne/bncc_ensino_medio.pdf); [LDB compilada](https://www.planalto.gov.br/ccivil_03/leis/l9394compilado.htm); [CNCT, 4ª edição — Técnico em Administração](https://www.gov.br/mec/pt-br/acesso-a-informacao/institucional/estrutura-organizacional/orgaos-especificos-singulares/secretaria-de-educacao-profissional/catalogos-nacionais-de-cursos/CNCT_catalogogerado2022_2023.pdf); [Cadastro e-MEC](https://www.gov.br/mec/pt-br/politica-regulacao-supervisao-educacao-superior/cadastro-nacional-de-cursos-e-ies).

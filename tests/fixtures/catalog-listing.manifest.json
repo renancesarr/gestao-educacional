@@ -1,0 +1,157 @@
+{
+  "edition": "Fixture de listagem — dados abertos locais",
+  "sources": [
+    "CSV_DADOS_ABERTOS/Análise - Tabela da lista das escolas.csv",
+    "CSV_DADOS_ABERTOS/PDA_Lista_Instituicoes_Ensino_Superior_do_Brasil_EMEC.csv",
+    "CSV_DADOS_ABERTOS/PDA_Dados_Cursos_Graduacao_Brasil.csv"
+  ],
+  "selection": {
+    "inepSchool": "Menor código INEP por nome de município e UF publicados.",
+    "emecInstitution": "Menor código e-MEC por UF entre IES com ofertas publicadas; inclui todas as ofertas desses códigos."
+  },
+  "counts": {
+    "schools": 5567,
+    "municipalityStates": 5567,
+    "institutions": 27,
+    "institutionStates": 27,
+    "courses": 5358,
+    "offeringsWithoutInstitution": 0
+  },
+  "institutions": [
+    {
+      "state": "AC",
+      "code": "549",
+      "name": "UNIVERSIDADE FEDERAL DO ACRE"
+    },
+    {
+      "state": "AL",
+      "code": "32",
+      "name": "UNIVERSIDADE ESTADUAL DE CIÊNCIAS DA SAÚDE DE ALAGOAS - UNCISAL"
+    },
+    {
+      "state": "AM",
+      "code": "4",
+      "name": "UNIVERSIDADE FEDERAL DO AMAZONAS"
+    },
+    {
+      "state": "AP",
+      "code": "830",
+      "name": "UNIVERSIDADE FEDERAL DO AMAPÁ"
+    },
+    {
+      "state": "BA",
+      "code": "24",
+      "name": "UNIVERSIDADE ESTADUAL DE SANTA CRUZ"
+    },
+    {
+      "state": "CE",
+      "code": "29",
+      "name": "UNIVERSIDADE ESTADUAL DO CEARÁ"
+    },
+    {
+      "state": "DF",
+      "code": "2",
+      "name": "UNIVERSIDADE DE BRASÍLIA"
+    },
+    {
+      "state": "ES",
+      "code": "78",
+      "name": "FACULDADE DE FILOSOFIA CIÊNCIAS E LETRAS DE ALEGRE"
+    },
+    {
+      "state": "GO",
+      "code": "47",
+      "name": "UNIVERSIDADE ESTADUAL DE GOIÁS"
+    },
+    {
+      "state": "MA",
+      "code": "548",
+      "name": "UNIVERSIDADE FEDERAL DO MARANHÃO"
+    },
+    {
+      "state": "MG",
+      "code": "6",
+      "name": "UNIVERSIDADE FEDERAL DE OURO PRETO"
+    },
+    {
+      "state": "MS",
+      "code": "387",
+      "name": "UNIVERSIDADE CATÓLICA DOM BOSCO"
+    },
+    {
+      "state": "MT",
+      "code": "1",
+      "name": "UNIVERSIDADE FEDERAL DE MATO GROSSO"
+    },
+    {
+      "state": "PA",
+      "code": "38",
+      "name": "UNIVERSIDADE DO ESTADO DO PARÁ"
+    },
+    {
+      "state": "PB",
+      "code": "352",
+      "name": "CENTRO UNIVERSITÁRIO DE JOÃO PESSOA"
+    },
+    {
+      "state": "PE",
+      "code": "11",
+      "name": "UNIVERSIDADE CATÓLICA DE PERNAMBUCO"
+    },
+    {
+      "state": "PI",
+      "code": "5",
+      "name": "UNIVERSIDADE FEDERAL DO PIAUÍ"
+    },
+    {
+      "state": "PR",
+      "code": "9",
+      "name": "UNIVERSIDADE ESTADUAL DE LONDRINA"
+    },
+    {
+      "state": "RJ",
+      "code": "15",
+      "name": "UNIVERSIDADE CATÓLICA DE PETRÓPOLIS"
+    },
+    {
+      "state": "RN",
+      "code": "71",
+      "name": "UNIVERSIDADE DO ESTADO DO RIO GRANDE DO NORTE"
+    },
+    {
+      "state": "RO",
+      "code": "450",
+      "name": "Afya Centro Universitário de Ji-Paraná"
+    },
+    {
+      "state": "RR",
+      "code": "789",
+      "name": "UNIVERSIDADE FEDERAL DE RORAIMA"
+    },
+    {
+      "state": "RS",
+      "code": "12",
+      "name": "UNIVERSIDADE FEDERAL DO RIO GRANDE"
+    },
+    {
+      "state": "SC",
+      "code": "43",
+      "name": "FUNDAÇÃO UNIVERSIDADE DO ESTADO DE SANTA CATARINA"
+    },
+    {
+      "state": "SE",
+      "code": "3",
+      "name": "UNIVERSIDADE FEDERAL DE SERGIPE"
+    },
+    {
+      "state": "SP",
+      "code": "7",
+      "name": "UNIVERSIDADE FEDERAL DE SÃO CARLOS"
+    },
+    {
+      "state": "TO",
+      "code": "453",
+      "name": "CENTRO UNIVERSITÁRIO LUTERANO DE PALMAS"
+    }
+  ]
+}
