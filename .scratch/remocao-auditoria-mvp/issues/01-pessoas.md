@@ -2,7 +2,7 @@
 **What to build:** cadastro e consulta de pessoas funcionam sem gerar eventos de auditoria e sem expor endpoints ou permissões de consulta de auditoria no MVP.
 **Blocked by:** None — can start immediately.
 **Priority:** 1
-**Status:** ready-for-agent
+**Status:** ready-for-human
 - [x] Criação local e global de pessoas persiste somente o registro funcional; falha de uma infraestrutura de auditoria não participa nem bloqueia a operação.
 - [x] Rotas de consulta de auditoria de pessoas deixam de ser expostas; cadastro, busca por identificador e consulta por ID continuam autorizados e isolados por tenant.
 - [x] Permissões e wiring do MVP não oferecem `audit:read`; o módulo `audit` e a exigência sistêmica futura permanecem preservados.

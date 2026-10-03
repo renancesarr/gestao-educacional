@@ -6,12 +6,12 @@ Este documento registra decisões de domínio e pendências da evolução acadê
 
 - Matrículas são registradas individualmente pelo site; não haverá registro de matrículas em lote neste MVP.
 - Integração com ambiente EAD externo fica para depois do MVP. Os dados mencionados nas decisões anteriores são registros por disciplina e resultados finais externos; a origem e o contrato de integração ainda não foram especificados.
-- O MVP inclui CRUD de avaliações, notas, frequência, históricos e credenciais. As regras e campos de cada fluxo precisam de especificação própria.
-- Importação de escolas do INEP e de IES/cursos de graduação pelos CSVs de dados abertos e-MEC em `CSV_DADOS_ABERTOS` fazem parte do recorte. A base de especializações fica fora. A importação cria referências para catálogo, sem criar tenants ou matrículas.
+- O MVP inclui CRUD manual de avaliações, notas, frequência, históricos e credenciais, com datas acadêmicas passadas aceitas; os contratos estão nas ADRs 0018, 0020 e 0021 e nas especificações focadas.
+- O catálogo de referência usa os dados INEP locais fornecidos para escolas. Os registros de IES/ofertas e-MEC já selecionados ficam em fixture SQLite read-only de teste/demonstração; não há importação ou atualização operacional e-MEC no MVP. Não se criam tenants ou matrículas a partir das referências.
 - Alunos podem ser consultados por operadores autenticados e pelo público. Os critérios incluem CPF, nome, município/UF de nascimento e curso; o público recebe apenas nome, curso e instituição.
 - Auditoria está fora do MVP, mas permanece requisito do sistema completo.
 
-As decisões confirmadas abaixo sobre ofertas, ciclos, integração, lotes e auditoria descrevem a evolução futura quando não forem explicitamente incluídas neste recorte.
+As decisões confirmadas abaixo sobre ofertas, ciclos, integração, lotes e auditoria descrevem a evolução futura quando não forem explicitamente incluídas neste recorte. Em caso de conflito, ADRs posteriores 0015–0021 e especificações focadas prevalecem sobre esta entrevista histórica.
 
 ## Contexto informado
 

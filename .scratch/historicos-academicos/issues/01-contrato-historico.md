@@ -6,14 +6,16 @@
 
 **Priority:** 1
 
-**Status:** needs-info
+**Status:** ready-for-human
 
-- [ ] Definir campos e granularidade do registro de histórico.
-- [ ] Definir se o conteúdo é preenchido manualmente, composto de dados acadêmicos existentes ou gerado.
-- [ ] Definir vínculos obrigatórios com aluno, matrícula, curso e instituição.
-- [ ] Definir papéis autorizados, edição e exclusão.
-- [ ] Distinguir o histórico acadêmico de uma credencial/documento demonstrativo.
+- [x] Campos e granularidade: uma linha manual por componente/período com origem, curso, ano/período, componente, carga horária, nota/conceito e faltas opcionais, resultado e observações.
+- [x] Conteúdo preenchido manualmente; nenhum cálculo ou composição automática.
+- [x] Vínculo obrigatório com pessoa do tenant; matrícula, curso operacional e matéria atual não são exigidos. Curso e componente históricos são rótulos textuais.
+- [x] Operações feitas pelo `SUPER_ADMIN` com tenant-alvo explícito; edição e exclusão físicas permitidas.
+- [x] Histórico é um registro acadêmico manual, não uma credencial nem documento oficial.
 
 ## Comments
 
-O usuário confirmou o CRUD no MVP. As definições acima seguem pendentes e não devem ser implementadas por inferência.
+O usuário confirmou o CRUD no MVP. O contrato mínimo escolhido para transferência manual está na ADR 0021.
+
+Contrato mínimo adotado para permitir transferência manual no MVP a pedido do usuário; registrado na ADR 0021.

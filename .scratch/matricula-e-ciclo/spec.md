@@ -1,6 +1,6 @@
 # Matrícula e ciclo acadêmico — índice vigente
 
-Status: needs-info
+Status: ready-for-human
 
 Esta especificação antiga de matrícula em lote, integração EAD, ativações, ciclos/ofertas e auditoria como requisito do MVP foi substituída pelas decisões da ADR 0015 e ADR 0016. Não use os requisitos da proposta anterior como trabalho pendente.
 
@@ -13,14 +13,13 @@ Esta especificação antiga de matrícula em lote, integração EAD, ativações
 - Auditoria fica fora de todas as operações do MVP; continua requisito do sistema completo.
 - Avaliações, notas, frequência, históricos e credenciais estão no MVP e possuem especificações focadas na pasta `.scratch`.
 
-## Decisões que não devem ser inventadas
+## Limites do recorte atual
 
-- Regras de avaliação, nota, frequência e resultado acadêmico.
-- Campos públicos retornados na busca de alunos e significado do município/UF do aluno.
-- Origem dos dados externos de cursos.
-- Semântica de edição/exclusão de histórico e efeito de editar/excluir credencial emitida sobre hash, QR Code e validação.
-
-Pendência significa decisão de produto em aberto, não funcionalidade atrasada. A lista de requisitos antigos foi removida deste índice para evitar conflitar com o escopo aprovado.
+- Não executar matrícula em lote nem integração EAD ou novas integrações externas durante o desenvolvimento do MVP.
+- Lançamentos manuais de avaliações, notas e frequência podem usar datas acadêmicas passadas; fórmulas e cálculos automáticos não fazem parte do contrato atual.
+- Histórico é transferido manualmente em registros editáveis, sem cálculo ou declaração de documento oficial.
+- Credenciais emitidas podem ser editadas ou excluídas no MVP; edição recalcula hash e troca o token de validação conforme ADR 0020.
+- Auditoria fica fora das operações do MVP e permanece requisito do sistema completo.
 
 ## Fontes de precedência
 

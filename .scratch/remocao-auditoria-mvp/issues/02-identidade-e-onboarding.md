@@ -2,7 +2,7 @@
 **What to build:** provisionar, ativar, autenticar e recuperar a conta `SUPER_ADMIN`, além de criar uma instituição, sem gravar eventos de auditoria no MVP.
 **Blocked by:** 01 — Desligar auditoria dos fluxos de pessoas, para consolidar a composição HTTP/fixture sem dependências de auditoria.
 **Priority:** 1
-**Status:** ready-for-agent
+**Status:** ready-for-human
 - [x] Operações de ciclo de vida de `SUPER_ADMIN` não criam eventos de auditoria tenant-scoped nem de plataforma.
 - [x] Criar instituição, escopo e conta inicial permanece atômico para os dados necessários, sem depender de inserts de auditoria.
 - [x] Testes comprovam provisionamento, ativação, autenticação, recuperação, onboarding e persistência funcional sem requisito de auditoria.

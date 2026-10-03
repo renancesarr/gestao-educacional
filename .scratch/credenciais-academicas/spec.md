@@ -33,5 +33,5 @@ Usar dados fictícios e nenhuma assinatura externa real.
 - Imutabilidade obrigatória de credencial emitida neste MVP; essa regra é do sistema completo.
 - Auditoria e integração EAD.
 ## Further Notes
-- A ADR 0016 registra a permissão de editar e excluir credenciais emitidas; permanecem abertas as consequências técnicas dessa edição sobre a validação.
-- Decisão de ciclo de vida: [ADR 0020](../../docs/adr/0020-ciclo-de-vida-de-credenciais-no-mvp.md). Implementação validada em HTTP, SQLite e E2E visível; a interface apresenta o link, sem renderizar imagem QR.
+- A ADR 0016 registra a permissão de editar e excluir credenciais emitidas; as consequências sobre hash, token e validação estão definidas na ADR 0020.
+- Decisão de ciclo de vida: [ADR 0020](../../docs/adr/0020-ciclo-de-vida-de-credenciais-no-mvp.md). `npm run test:all` passou, incluindo HTTP, SQLite e E2E visível; a interface apresenta o link, sem renderizar imagem QR. Log: `logs/log-teste-2026-10-03T09-53-12-010Z.txt`.

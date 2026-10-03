@@ -89,6 +89,10 @@ _Avoid_: Nome livre de professor, colaborador de outro tenant, conta de acesso i
 
 ### Vida acadêmica
 
+**Histórico acadêmico manual**:
+Registro textual estruturado por componente curricular e período, ligado a uma pessoa dentro do tenant. Preserva instituição/curso de origem, ano, período, matéria, carga horária, nota/conceito, faltas, resultado e observações informados manualmente; não depende de matrícula ou catálogo atual e não calcula nem certifica resultados. Ver ADR 0021.
+_Avoid_: Histórico gerado automaticamente, histórico oficial, curso anterior como curso operacional atual
+
 **Oferta educacional**:
 Contexto de oferta de um percurso acadêmico pela instituição, que define se o início e a progressão seguem calendário de turma ou são individuais. Uma instituição pode manter ofertas com ambos os funcionamentos.
 _Avoid_: Calendário único por instituição

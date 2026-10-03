@@ -18,4 +18,4 @@
 
 ## Comments
 
-Implementado em 2026-10-03. Evidências: `tests/unit/credential.test.ts`, `tests/sqlite/credential.test.ts`, `tests/http/credential.test.ts` e jornada E2E visível de emissão/edição/validação/exclusão. A execução da suíte completa deve ser repetida depois do ajuste final no E2E.
+Implementado em 2026-10-03. Evidências: `tests/unit/credential.test.ts`, `tests/sqlite/credential.test.ts`, `tests/http/credential.test.ts` e jornada E2E visível de emissão/edição/validação/exclusão. A suíte completa `npm run test:all` passou com o E2E visível; log: `logs/log-teste-2026-10-03T09-53-12-010Z.txt`.
