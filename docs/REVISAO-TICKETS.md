@@ -67,7 +67,7 @@ O agente deve separar fatos verificados de alegações do ticket. Um teste aprov
 - Revise primeiro tickets de contrato/decisão, depois os tickets de CRUD que dependem deles: avaliações, históricos e credenciais.
 - Revise em seguida as jornadas centrais de instituição, curso, PPC, matéria e matrícula individual.
 - Depois confira buscas de alunos, catálogos/fixtures locais, onboarding/persistência e remoção de auditoria no runtime do MVP.
-- O ticket `.scratch/matricula-e-ciclo/issues/01-cadastro-consulta-pessoas.md` ainda tem um item de commit não marcado. O commit documental não fecha esse item; confirme o commit do código correspondente antes de aceitá-lo.
+- Se evidências individuais passarem e a execução agregada falhar por estado compartilhado, registre o limite no comentário e acompanhe a correção em ticket separado; aceite somente os critérios verificados no escopo individual.
 
 ## Limites para quem continuar o projeto
 

@@ -2,7 +2,7 @@
 **What to build:** Provisionar/autenticar e criar instituição funciona; a jornada não oferece nem exige trilha de auditoria do MVP.
 **Blocked by:** 01 — Executar um E2E por ID de ticket e salvar vídeo.
 **Priority:** 1
-**Status:** ready-for-human
+**Status:** done
 **Ticket de origem:** `.scratch/remocao-auditoria-mvp/issues/02-identidade-e-onboarding.md`
 - [x] Existe um spec Cypress independente para este ticket, com uma jornada focada e sem cenários de outros tickets.
 - [x] O fluxo usa a interface visível e a fixture/estado-base mínimo; falha claramente se os dados esperados estiverem ausentes.
@@ -14,3 +14,5 @@
 Especificação: [E2E isolado por ticket com vídeo](../spec.md). O comando usa o caminho identificador do ticket de origem e não executa a suíte completa.
 
 - 2026-10-03: Cypress headed passou (1/1), criando instituição e conta TENANT_ADMIN com os dados funcionais do MVP, sem superfície de auditoria. Evidência: `logs/e2e/remocao-auditoria-mvp/02-identidade-e-onboarding/2026-10-03T11-26-56-779Z/videos/02-identidade-e-onboarding.cy.ts.mp4`; log: `logs/e2e/remocao-auditoria-mvp/02-identidade-e-onboarding/2026-10-03T11-26-56-779Z/run.txt`.
+
+- **Revisão e aceite (2026-10-03):** aceite registrado a pedido explícito do responsável. Critérios conferidos; a execução isolada registrada em `logs/e2e/remocao-auditoria-mvp/02-identidade-e-onboarding/2026-10-03T11-26-56-779Z/run.txt` terminou com `All specs passed!` e o vídeo `logs/e2e/remocao-auditoria-mvp/02-identidade-e-onboarding/2026-10-03T11-26-56-779Z/videos/02-identidade-e-onboarding.cy.ts.mp4` existe. O comando por ticket seleciona uma única jornada visível e mantém as evidências locais.
