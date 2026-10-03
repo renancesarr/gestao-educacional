@@ -10,6 +10,7 @@ import type { createPlatformIdentityService } from '../identity/index.ts';
 import type { createInstitutionOperationContextService, createSuperAdminService } from '../super_admin/index.ts';
 import type { createPublicCatalogService, PublicCatalogVersion } from '../public_catalog/index.ts';
 import type { createCredentialService } from '../credential/index.ts';
+import type { createAcademicHistoryService } from '../academic/history.ts';
 import { parseInepSchoolCsv } from '../public_catalog/inep-csv.ts';
 import { ApplicationError, type ErrorCode } from '../shared/errors.ts';
 
@@ -25,6 +26,7 @@ interface Services {
   superAdmin: ReturnType<typeof createSuperAdminService>;
   publicCatalog: ReturnType<typeof createPublicCatalogService>;
   credentials: ReturnType<typeof createCredentialService>;
+  academicHistory: ReturnType<typeof createAcademicHistoryService>;
 }
 const statuses: Record<ErrorCode, number> = { UNAUTHENTICATED: 401, FORBIDDEN: 403, INVALID_INPUT: 400,
   NOT_FOUND: 404, CONFLICT: 409, UNAVAILABLE: 503, RATE_LIMITED: 429 };
@@ -275,6 +277,41 @@ export function createHttpServer(services: Services, options: { origin: string; 
         const input = targetInput(await body(request), []);
         const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
         await services.credentials.delete(context, platformCredential[1]!);
+        json(response, 200, { deleted: true }); return;
+      }
+      if (request.method === 'POST' && url.pathname === '/api/platform/histories') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['studentId', 'sourceInstitution', 'courseName', 'academicYear', 'period',
+          'subjectName', 'workloadHours', 'gradeOrConcept', 'absenceCount', 'result', 'notes']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 201, await services.academicHistory.create(context, input.operation)); return;
+      }
+      if (request.method === 'POST' && url.pathname === '/api/platform/histories/search') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['studentId']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 200, await services.academicHistory.list(context, input.operation.studentId as string | undefined)); return;
+      }
+      if (request.method === 'POST' && url.pathname === '/api/platform/histories/get') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['id']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        if (typeof input.operation.id !== 'string') throw new ApplicationError('INVALID_INPUT', 'Informe o ID do histórico.');
+        json(response, 200, await services.academicHistory.get(context, input.operation.id)); return;
+      }
+      const platformHistory = new RegExp(`^/api/platform/histories/(${uuid})$`, 'i').exec(url.pathname);
+      if (request.method === 'PATCH' && platformHistory) {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['studentId', 'sourceInstitution', 'courseName', 'academicYear', 'period',
+          'subjectName', 'workloadHours', 'gradeOrConcept', 'absenceCount', 'result', 'notes']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 200, await services.academicHistory.update(context, platformHistory[1]!, input.operation)); return;
+      }
+      if (request.method === 'DELETE' && platformHistory) {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), []);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        await services.academicHistory.delete(context, platformHistory[1]!);
         json(response, 200, { deleted: true }); return;
       }
       if (request.method === 'POST' && url.pathname === '/api/platform/people') {

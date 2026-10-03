@@ -17,6 +17,8 @@ import { createEmecCatalogService } from '../../src/public_catalog/emec-catalog.
 import { MemoryEmecCatalogStore } from './memory-emec-catalog-store.ts';
 import { createCredentialService } from '../../src/credential/index.ts';
 import { MemoryCredentialStore } from './memory-credential-store.ts';
+import { createAcademicHistoryService } from '../../src/academic/history.ts';
+import { MemoryAcademicHistoryStore } from './memory-academic-history-store.ts';
 
 export async function fixtureServices() {
   const passwordHash = await hashPassword('senha-ficticia-longa');
@@ -43,14 +45,20 @@ export async function fixtureServices() {
       return { id: course.id, tenantId: course.tenantId, name: course.name, institutionName: 'Escola Fictícia · demonstração' };
     } },
   });
+  const academicHistory = createAcademicHistoryService({ store: new MemoryAcademicHistoryStore(), students: globalPeople,
+    now: () => new Date(), newId: randomUUID });
   return {
     identity: createIdentityService({ store: new MemoryIdentityStore(accounts), now: () => new Date(), newToken: () => randomBytes(32).toString('hex') }),
     platformIdentityStore,
     platformIdentity: createPlatformIdentityService({ store: platformIdentityStore, now: () => new Date(),
       newId: randomUUID, newActivationCode: () => 'fixture-one-time-activation-code',
       newCeremonyToken: () => randomBytes(32).toString('base64url'), newLoginToken: () => randomBytes(32).toString('base64url'),
-      newToken: () => randomBytes(32).toString('base64url'), newRecoveryCode: () => randomBytes(32).toString('base64url'), webAuthn: {
-        registrationOptions: async () => ({ challenge: 'fixture-registration-challenge' } as never),
+      newToken: () => randomBytes(32).toString('base64url'), newRecoveryCode: () => 'fixture-recovery-code', webAuthn: {
+        registrationOptions: async () => ({ challenge: 'Zml4dHVyZS1yZWdpc3RyYXRpb24tY2hhbGxlbmdl',
+          rp: { name: 'Gestão Educacional', id: 'localhost' },
+          user: { id: 'Zml4dHVyZS1hZG1pbg', name: 'root-cypress-e2e', displayName: 'root-cypress-e2e' },
+          pubKeyCredParams: [{ type: 'public-key', alg: -7 }], timeout: 60_000, attestation: 'none',
+          authenticatorSelection: { residentKey: 'preferred', userVerification: 'required' } } as never),
         verifyRegistration: async () => ({ verified: true, userVerified: true,
           credential: { id: 'fixture-passkey', publicKey: new Uint8Array([1]), counter: 0 } }),
         authenticationOptions: async () => ({ challenge: 'fixture-login-challenge', userVerification: 'required' } as never),
@@ -61,6 +69,7 @@ export async function fixtureServices() {
     institutionOperationContext: createInstitutionOperationContextService({ targets: targetStore }),
     publicCatalog: createPublicCatalogService({ store: new MemoryPublicCatalogStore(), now: () => new Date(), newId: randomUUID }),
     credentials,
+    academicHistory,
     emecCatalog: createEmecCatalogService({ store: new MemoryEmecCatalogStore(), newId: randomUUID }),
     people: createPeopleService({ store, now: () => new Date(), newId: randomUUID }),
     globalPeople,

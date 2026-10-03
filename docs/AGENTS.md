@@ -40,7 +40,7 @@ Use os gatilhos abaixo para selecionar o fluxo; a presença de uma skill não ex
 | Criar ou alterar instruções para agentes | `writing-for-agents` |
 Quando solicitadas, use `to-spec` para consolidar especificações, `to-tickets` para decompor trabalho, `implement` para executar especificações/tickets e `triage` para tratar a fila de solicitações. Consulte o catálogo para outros fluxos especializados.
 ### Issue tracker
-Tarefas e especificações usam Markdown local em `.scratch/<feature>/`. Antes de criar, consultar ou atualizar tickets, leia `docs/agents/issue-tracker.md`.
+Tarefas e especificações usam Markdown local em `.scratch/<feature>/`. Antes de criar, consultar ou atualizar tickets, leia `docs/agents/issue-tracker.md`. Para revisar entregas `ready-for-human`, siga `docs/REVISAO-TICKETS.md`.
 ### Triage labels
 A triagem usa `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human` e `wontfix`. Antes de triar, leia `docs/agents/triage-labels.md`.
 ### Domain docs

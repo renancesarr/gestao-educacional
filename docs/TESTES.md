@@ -1,6 +1,6 @@
 # Testes unitários isolados
 ## Suíte completa disponível
-O código atual cobre os fluxos já implementados do MVP e não exige auditoria em pessoas, identidade ou onboarding. As operações de auditoria permanecem fora do MVP, e o módulo sistêmico é mantido para evolução futura. A integração de catálogos e-MEC não pertence ao MVP; busca ampliada de alunos e CRUDs acadêmicos continuam em desenvolvimento.
+O código atual cobre os fluxos implementados do MVP e não exige auditoria em pessoas, identidade ou onboarding. As operações de auditoria permanecem fora do MVP, e o módulo sistêmico é mantido para evolução futura. A integração de catálogos e-MEC não pertence ao MVP; buscas ampliadas de alunos e CRUDs acadêmicos têm especificações e tickets próprios. Para revisar entregas e atualizar o status dos tickets, siga [REVISAO-TICKETS.md](REVISAO-TICKETS.md).
 Com Node.js 24.12 ou superior e dependências instaladas, execute toda a suíte padrão com um comando:
 ```sh
 npm ci
@@ -10,6 +10,19 @@ npm run test:all
 `npm run test:all` executa testes unitários, HTTP e SQLite, typechecks backend/frontend, testes unitários e lint do frontend e, por último, o E2E. Ele para na primeira falha, transmite a saída ao terminal e grava a execução completa em `logs/log-teste-<timestamp>.txt`. Uma nova execução cria outro arquivo. Os logs locais não são versionados.
 O E2E visível no navegador é prioridade 1 do fluxo de testes. Ele abre uma janela Electron e percorre o fluxo novo ou alterado a partir de um estado-base de teste preparado e validado. Não repete interativamente o provisionamento do `SUPER_ADMIN`, a criação de instituições ou a criação de cursos que já foram testados. Essa cobertura-base continua disponível e deve ser executada quando esses fluxos forem alterados ou quando uma falha indicar estado-base ausente/incorreto; nessa situação, confira também se a fixture contém os registros esperados. Esta política não remove testes automatizados de regressão unitários, HTTP ou persistência, nem muda o comando completo da suíte. O Cypress inicia Next.js e backend de fixture; ambos precisam disponibilizar `/health` com resposta bem-sucedida antes do teste. O Next encaminha `/health` ao backend.
 O comando `npm --prefix frontend run test:e2e` executa somente o E2E visível. A suíte HTTP abre um socket local.
+
+## E2E seletivo por ticket
+
+Para validar um ticket funcional, rode o spec independente associado ao ID do ticket de origem. Exemplo:
+```sh
+npm run test:e2e:ticket -- consulta-alunos/02-busca-publica-limitada
+```
+O ID é o caminho do ticket sob `.scratch/`, sem `.md`. O runner confere se o ticket está ativo e se existe um único spec em `frontend/cypress/e2e/tickets/<feature>/<NN-ticket>.cy.ts`; executa apenas esse arquivo com Cypress/Electron em modo visível. Um ticket sem spec, inativo ou com execução sem testes falha em vez de aparentar sucesso.
+
+Cada execução cria um diretório exclusivo em `logs/e2e/<feature>/<NN-ticket>/<timestamp>/`, contendo `run.txt` e `videos/<spec>.mp4`. Os logs e vídeos são evidências locais e não devem ser adicionados ao Git. O navegador precisa estar visível durante a execução; ao terminar, o terminal informa os caminhos do log e do vídeo. Para uma mudança rotineira, execute primeiro os testes direcionados do ticket e as verificações unitárias/HTTP/SQLite correspondentes. `npm run test:all` continua reservado para regressão ampla quando necessário.
+
+Há 33 tickets de cobertura E2E, um por ticket funcional atualmente em `ready-for-human`, além do ticket de infraestrutura do runner. Os 33 specs já estão implementados e cada um tem execução Cypress headed aprovada com vídeo MP4 e log verificável em `logs/e2e/`. A especificação, o inventário e os tickets individuais estão em `.scratch/e2e-por-ticket/`; para mudança futura, execute somente o ticket alterado e suas verificações relacionadas.
+
 Decisão do usuário: testes unitários isolados. A fronteira testada é a interface pública dos serviços; banco, HTTP, Docker e rede não participam da execução.
 ## Execução
 Requer Node.js 24.12 ou superior. Instale as ferramentas de desenvolvimento com `npm ci` e execute:

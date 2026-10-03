@@ -7,6 +7,7 @@ Comece pela visão do produto e consulte o vocabulário antes de trabalhar nas r
 | [AGENTS.md](docs/AGENTS.md) | Instruções de trabalho para agentes em todo o projeto. |
 | [adr/](docs/adr/) | Decisões arquiteturais e seus motivos. |
 | [ADR 0016](docs/adr/0016-escopo-atual-do-mvp.md) | Recorte vigente do MVP, incluindo matrícula individual, catálogos, CRUDs acadêmicos e auditoria adiada. |
+| [REVISAO-TICKETS.md](docs/REVISAO-TICKETS.md) | Passo a passo para revisar tickets entregues, aceitar ou pedir correções e atualizar o status. |
 | [AUDITORIA-DA-PASTA.md](docs/AUDITORIA-DA-PASTA.md) | Inspeção de acessos e uso do verificador de integridade documental. |
 O `AGENTS.md` da raiz encaminha para as instruções completas desta pasta. Os documentos de produto e domínio têm sua fonte em `docs/`.
 Quando especificações ou planos anteriores divergirem do escopo vigente, prevalece a ADR 0016; documentos anteriores mantêm valor histórico e decisões de domínio futuro que não foram substituídas.
@@ -16,7 +17,7 @@ python3 scripts/auditar_markdown.py check
 ```
 Configuração das skills: [tarefas](docs/agents/issue-tracker.md), [triagem](docs/agents/triage-labels.md) e [documentação de domínio](docs/agents/domain.md).
 ## Desenvolvimento
-O baseline executável inicia localmente com SQLite e cobre o fluxo `SUPER_ADMIN` de instituição, pessoas, colaboradores, cursos, PPC/matérias e matrícula individual, além da importação atual de escolas INEP. O escopo ampliado do MVP está definido em [ADR 0016](docs/adr/0016-escopo-atual-do-mvp.md); catálogo de cursos, buscas ampliadas, CRUDs de vida acadêmica e exclusão da auditoria ainda exigem implementação/alinhamento no código. Use Node.js 24.12 ou superior:
+O baseline executável usa SQLite e cobre o fluxo `SUPER_ADMIN` de instituição, pessoas, colaboradores, cursos, PPC/matérias e matrícula individual, além de buscas, catálogo local e CRUDs acadêmicos. O recorte ampliado do MVP está definido em [ADR 0016](docs/adr/0016-escopo-atual-do-mvp.md). Para revisar o que foi entregue e decidir se um ticket pode ser aceito, siga [REVISAO-TICKETS.md](docs/REVISAO-TICKETS.md). Use Node.js 24.12 ou superior:
 ```sh
 npm ci
 npm run test:unit

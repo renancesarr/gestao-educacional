@@ -25,6 +25,8 @@ import { createPublicCatalogService } from './public_catalog/index.ts';
 import { createSqlitePublicStudentSearchStore } from './database/sqlite-public-student-search-store.ts';
 import { createSqliteCredentialStore } from './database/sqlite-credential-store.ts';
 import { createCredentialService } from './credential/index.ts';
+import { createAcademicHistoryService } from './academic/history.ts';
+import { createSqliteAcademicHistoryStore } from './database/sqlite-academic-history-store.ts';
 
 const port = Number(process.env.PORT ?? '3000');
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT inválida.');
@@ -50,6 +52,7 @@ const academicStore = database ? createSqliteAcademicStore(database) : postgresA
 const platformIdentityStore = database ? createSqlitePlatformIdentityStore(database) : postgresPlatformIdentityStore(pool!);
 if (!database) throw new Error('O catálogo público do MVP requer o adaptador SQLite.');
 const credentialStore = createSqliteCredentialStore(database);
+const academicHistoryStore = createSqliteAcademicHistoryStore(database);
 const publicCatalog = createPublicCatalogService({ store: createSqlitePublicCatalogStore(database), now: () => new Date(), newId: randomUUID });
 const globalPeople = createGlobalPeopleService({ store, now: () => new Date(), newId: randomUUID });
 const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now: () => new Date(), newId: randomUUID });
@@ -72,6 +75,7 @@ const server = createHttpServer({
   publicCatalog,
   credentials: createCredentialService({ store: credentialStore, students: globalPeople, courses: { get: (context, courseId) => credentialStore.getCourseForCredential(context, courseId) },
     now: () => new Date(), newId: randomUUID, newToken: () => randomBytes(32).toString('base64url') }),
+  academicHistory: createAcademicHistoryService({ store: academicHistoryStore, students: globalPeople, now: () => new Date(), newId: randomUUID }),
 }, { origin });
 server.listen(port, process.env.HOST ?? '127.0.0.1', () => console.log(`Gestão acadêmica: ${origin}`));
 server.on('error', async () => { console.error('Não foi possível iniciar o servidor.'); await pool?.end(); database?.close(); process.exitCode = 1; });

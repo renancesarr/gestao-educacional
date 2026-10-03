@@ -25,10 +25,10 @@ function stop(child: ChildProcess | undefined) {
 }
 
 export default defineConfig({
+  video: true,
   e2e: {
     baseUrl: 'http://localhost:3000',
     specPattern: 'cypress/e2e/**/*.cy.ts',
-    video: false,
     screenshotOnRunFailure: false,
     async setupNodeEvents(on) {
       backend = spawn(process.execPath, [resolve(frontendDirectory, 'cypress/support/e2e-backend.ts')], {

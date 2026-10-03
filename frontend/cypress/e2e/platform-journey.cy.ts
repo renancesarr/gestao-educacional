@@ -101,7 +101,7 @@ describe('CRUD acadêmico com estado-base preparado', () => {
       cy.contains('Pessoa encontrada: Aluno E2E preparado').should('be.visible');
       cy.get('nav[aria-label="Etapas do cadastro"]').contains('button', 'Avaliações, notas e frequência').click();
       cy.get('input[name="courseId"]').type(course.id);
-      cy.get('select[name="studentId"]').select('Aluno E2E preparado');
+      cy.get('select[name="studentId"]').first().select('Aluno E2E preparado');
       cy.get('select[name="type"]').select('diploma');
       cy.get('input[name="issuedOn"]').type('2025-06-10');
       cy.contains('button', 'Emitir credencial').click();
@@ -127,6 +127,42 @@ describe('CRUD acadêmico com estado-base preparado', () => {
       cy.contains('button', 'Atualizar lista').click();
       cy.contains('button', 'Excluir').click();
       cy.contains('Credencial excluída; o link público foi invalidado.').should('be.visible');
+    });
+  });
+
+  it('transfere manualmente, consulta, edita e exclui histórico anterior', () => {
+    cy.on('window:before:load', installVirtualPasskey);
+    cy.visit('/');
+    cy.get('input[name="username"]').type('root-cypress-e2e');
+    cy.contains('button', 'Continuar com passkey').click();
+    cy.wait('@loginOptions');
+    cy.wait('@loginVerify').its('response.statusCode').should('eq', 200);
+    cy.readFile('../tests/fixtures/academic-scenario.manifest.json').then(manifest => {
+      const tenantId = manifest.scenarios.school.tenant.id;
+      cy.visit(`/institutions/${tenantId}`);
+      cy.get('nav[aria-label="Etapas do cadastro"]').contains('button', 'Pessoas').click();
+      cy.get('select[name="kind"]').select('institutionalId');
+      cy.get('input[name="value"]').type('aluno-e2e-preparado');
+      cy.contains('button', 'Buscar', { matchCase: true }).click();
+      cy.get('nav[aria-label="Etapas do cadastro"]').contains('button', 'Avaliações, notas e frequência').click();
+      cy.get('select[name="studentId"]').last().select('Aluno E2E preparado');
+      cy.get('input[name="sourceInstitution"]').type('Escola de Origem');
+      cy.get('input[name="courseName"]').type('Ensino Fundamental');
+      cy.get('input[name="academicYear"]').last().type('2022');
+      cy.get('input[name="period"]').type('2º bimestre');
+      cy.get('input[name="subjectName"]').type('História');
+      cy.get('input[name="workloadHours"]').type('80');
+      cy.get('input[name="gradeOrConcept"]').type('B');
+      cy.get('input[name="absenceCount"]').type('3');
+      cy.get('input[name="result"]').last().type('Aprovado');
+      cy.contains('button', 'Registrar histórico manual').click();
+      cy.contains('Histórico transferido registrado para Aluno E2E preparado.').should('be.visible');
+      cy.get('form[aria-label="Editar histórico História"] input[name="result"]').clear().type('Recuperação concluída');
+      cy.get('form[aria-label="Editar histórico História"]').contains('button', 'Salvar alterações').click();
+      cy.contains('Histórico atualizado.').should('be.visible');
+      cy.get('form[aria-label="Editar histórico História"] input[name="result"]').should('have.value', 'Recuperação concluída');
+      cy.get('form[aria-label="Editar histórico História"]').contains('button', 'Excluir').click();
+      cy.contains('Histórico excluído.').should('be.visible');
     });
   });
 

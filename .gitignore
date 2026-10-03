@@ -7,3 +7,5 @@ data/*.sqlite-shm
 data/*.sqlite-wal
 *.tsbuildinfo
 __pycache__/
+CSV_DADOS_ABERTOS
+frontend/cypress/videos/
