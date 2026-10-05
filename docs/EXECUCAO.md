@@ -42,7 +42,6 @@ Requisições com corpo usam JSON. A busca é POST para não colocar CPF em URLs
 | Cadastrar pessoa | `POST /api/people` | `name`, `cpf` e/ou `institutionalId` |
 | Buscar pessoa | `POST /api/people/search` | Somente `cpf` ou somente `institutionalId` |
 | Consultar por ID | `GET /api/people/:id` | UUID |
-| Consultar criação (rota legada; fora do escopo vigente) | `GET /api/people/:id/audit` | UUID e permissão de auditoria |
 | Verificar processo | `GET /health` | Nenhuma; não comprova disponibilidade do banco |
 | Iniciar ativação global | `POST /api/platform/activation/options` | `username`, `activationCode` |
 | Concluir ativação global | `POST /api/platform/activation/verify` | `username`, resposta WebAuthn e cookie de cerimônia |
