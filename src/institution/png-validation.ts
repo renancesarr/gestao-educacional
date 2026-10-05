@@ -7,6 +7,7 @@ export function isValidPng(bytes: Uint8Array): boolean {
   let sawHeader = false;
   let sawData = false;
   let sawEnd = false;
+  let paletteEntries = 0;
   const compressed: Uint8Array[] = [];
   while (offset + 12 <= bytes.length) {
     const length = readU32(bytes, offset);
@@ -22,6 +23,10 @@ export function isValidPng(bytes: Uint8Array): boolean {
       if (!width || !height || width > 10000 || height > 10000) return false;
       sawHeader = true;
     } else if (name === 'IHDR') return false;
+    if (name === 'PLTE') {
+      if (paletteEntries || sawData || length === 0 || length % 3 !== 0 || length > 768 || bytes[25] === 0 || bytes[25] === 4) return false;
+      paletteEntries = length / 3;
+    }
     if (name === 'IDAT' && length > 0) {
       sawData = true;
       compressed.push(bytes.subarray(offset + 8, offset + 8 + length));
@@ -43,6 +48,7 @@ export function isValidPng(bytes: Uint8Array): boolean {
     const channels = ({ 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 } as Record<number, number>)[color];
     const depths = color === 0 ? [1, 2, 4, 8, 16] : color === 3 ? [1, 2, 4, 8] : [8, 16];
     if (!channels || !depths.includes(depth) || bytes[26] !== 0 || bytes[27] !== 0 || interlace > 1) return false;
+    if (color === 3 && (!paletteEntries || paletteEntries > 2 ** depth)) return false;
     const passes = interlace === 0 ? [[0, 0, 1, 1]] : [
       [0, 0, 8, 8], [4, 0, 8, 8], [0, 4, 4, 8], [2, 0, 4, 4],
       [0, 2, 2, 4], [1, 0, 2, 2], [0, 1, 1, 2],

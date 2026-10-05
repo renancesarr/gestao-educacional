@@ -32,4 +32,3 @@ export function validateSvg(bytes: Uint8Array): void {
     throw new ApplicationError('INVALID_INPUT', 'O arquivo deve conter um documento SVG bem formado.');
   }
 }
-

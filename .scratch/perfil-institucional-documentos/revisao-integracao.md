@@ -18,3 +18,7 @@ A verificação PNG segue o tamanho das linhas e as passagens Adam7 da [especifi
 - `npm run typecheck`: passou.
 - HTTP confirma rejeição de SVG malformado sem substituir a marca anterior válida.
 - Interface e gerador não foram alterados por esta correção; as evidências E2E anteriores permanecem vinculadas aos tickets.
+
+## Segunda rodada de revisão
+
+O SHA 5fc4fc9 foi rejeitado por aceitar PNG indexado sem PLTE. Teste público reproduziu Red (5 passaram/1 falhou). A validação agora exige paleta para tipo de cor 3, com tamanho/ordem compatíveis, e o teste preserva a aceitação da mesma imagem com paleta válida. Green: 6/6 unitários e 12/12 na execução focada completa.

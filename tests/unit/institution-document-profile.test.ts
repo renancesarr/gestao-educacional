@@ -30,3 +30,10 @@ test('imagem PNG recusa pixels que não correspondem às dimensões declaradas',
   const wrongHeight = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAAAAAC86un7AAAACklEQVR4nGNgAAAAAgABSK+kcQAAAABJRU5ErkJggg==', 'base64');
   assert.throws(() => validateInstitutionImage('logo', 'image/png', wrongHeight), { code: 'INVALID_INPUT' });
 });
+
+test('PNG indexado exige paleta e aceita a mesma imagem com paleta válida', () => {
+  const missingPalette = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAMAAAAoyzS7AAAACklEQVR4nGNgAAAAAgABSK+kcQAAAABJRU5ErkJggg==', 'base64');
+  assert.throws(() => validateInstitutionImage('logo', 'image/png', missingPalette), { code: 'INVALID_INPUT' });
+  const valid = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAMAAAAoyzS7AAAAA1BMVEUAAACnej3aAAAACklEQVR4nGNgAAAAAgABSK+kcQAAAABJRU5ErkJggg==', 'base64');
+  assert.deepEqual(validateInstitutionImage('logo', 'image/png', valid).bytes, new Uint8Array(valid));
+});
