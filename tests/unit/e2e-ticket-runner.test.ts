@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { hasExecutedTests, planTicketE2ERun } from '../../scripts/e2e-ticket-runner.mjs';
+import { commandForHiddenDisplay, hasExecutedTests, planTicketE2ERun } from '../../scripts/e2e-ticket-runner.mjs';
 
 async function makeProject(status = 'ready-for-human') {
   const root = await mkdtemp(join(tmpdir(), 'ticket-e2e-'));
@@ -19,7 +19,7 @@ async function makeProject(status = 'ready-for-human') {
   return { root, ticketId, ticketDirectory, specDirectory };
 }
 
-test('plans exactly one headed Cypress spec and unique video/log destinations for a ticket', async () => {
+test('plans exactly one Cypress spec for the hidden virtual display and unique video/log destinations', async () => {
   const project = await makeProject();
   try {
     const run = planTicketE2ERun(project.root, project.ticketId, new Date('2026-10-03T12:30:45.123Z'));
@@ -65,4 +65,15 @@ test('rejects a Cypress run that discovers no tests', () => {
   assert.equal(hasExecutedTests('│ Tests:        1 │'), true);
   assert.equal(hasExecutedTests('│ Tests:        0 │'), false);
   assert.equal(hasExecutedTests('Cypress failed before discovery'), false);
+});
+
+test('runs headed Cypress inside a virtual display on Linux and stays headless on other platforms', () => {
+  assert.deepEqual(commandForHiddenDisplay('node', ['cypress', 'run', '--headed'], 'linux'), {
+    command: 'xvfb-run',
+    args: ['-a', '--server-args=-screen 0 1280x720x24', 'node', 'cypress', 'run', '--headed'],
+  });
+  assert.deepEqual(commandForHiddenDisplay('node', ['cypress', 'run', '--headed'], 'darwin'), {
+    command: 'node',
+    args: ['cypress', 'run'],
+  });
 });

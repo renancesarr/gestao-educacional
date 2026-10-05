@@ -7,12 +7,12 @@ A suíte E2E atual concentra fluxos diferentes em uma jornada Cypress, não grav
 
 ## Solution
 
-Manter um teste Cypress E2E separado para cada um dos 33 tickets existentes em `ready-for-human`. O identificador do ticket local seleciona um único arquivo de teste e inicia somente esse fluxo no Electron visível. Cada execução produz um vídeo MP4 e um log textual em diretório único por ticket/data-hora. O uso normal durante a implementação é executar apenas o E2E do ticket alterado; a suíte completa permanece disponível para verificações amplas explicitamente necessárias.
+Manter um teste Cypress E2E separado para cada ticket funcional ativo. O conjunto inicial tinha 33 tickets; o CRUD de atos regulatórios acrescenta um 34º fluxo funcional. O identificador do ticket local seleciona um único arquivo de teste e executa esse fluxo no Electron dentro de uma tela virtual Xvfb. Cada execução produz um vídeo MP4 e um log textual em diretório único por ticket/data/hora, sem abrir uma janela no desktop do usuário. O uso normal durante a implementação é executar apenas o E2E do ticket alterado; a suíte completa permanece disponível para verificações amplas explicitamente necessárias.
 
 ## User Stories
 
 1. Como mantenedor, quero executar o E2E de um ticket pelo identificador dele, para validar só o fluxo que alterei.
-2. Como revisor, quero ver o navegador enquanto o teste roda, para observar o comportamento da interface.
+2. Como revisor, quero um vídeo da jornada sem uma janela de navegador aberta no meu desktop, para poder assistir à evidência depois.
 3. Como revisor, quero um vídeo mesmo quando o teste passa, para poder assistir à evidência depois.
 4. Como implementador, quero que cada ticket tenha seu próprio teste/spec, para localizar falhas sem navegar por uma jornada monolítica.
 5. Como mantenedor, quero que uma execução grave log e vídeo com o identificador e horário do ticket, para não sobrescrever evidências anteriores.
@@ -20,17 +20,17 @@ Manter um teste Cypress E2E separado para cada um dos 33 tickets existentes em `
 7. Como responsável por dados, quero que as jornadas usem dados fictícios e fixtures locais, sem alterar o banco operacional.
 8. Como responsável pela privacidade, quero que vídeos e logs permaneçam locais e fora do versionamento, pois podem conter dados de demonstração.
 9. Como implementador, quero receber erro claro quando o identificador não existe ou não tem spec, para não obter falso sucesso por teste vazio.
-10. Como revisor de segurança, quero que cada jornada visível valide autorização, escopo da instituição e dados públicos mínimos quando esses critérios pertencem ao ticket.
+10. Como revisor de segurança, quero que cada jornada valide autorização, escopo da instituição e dados públicos mínimos quando esses critérios pertencem ao ticket.
 11. Como operador do desenvolvimento, quero manter a suíte completa disponível para regressões amplas sem executá-la a cada pequena alteração.
 
 ## Implementation Decisions
 
 - A fronteira E2E é o navegador real de Cypress/Electron usando interface e backend local de fixture; testes não substituem unitários, HTTP nem SQLite onde esses cobrem regras e persistência com maior precisão.
 - O workspace Cypress mantém um spec independente por ticket em `cypress/e2e/tickets/<feature>/<issue>.cy.ts`, com uma jornada `it` focada por spec. O ID usado no comando é o caminho do ticket sob `.scratch`, sem extensão.
-- Um comando direcionado aceita um ID de ticket por execução, valida o caminho dentro do tracker e exige o spec correspondente. Executa Cypress com exatamente um `--spec`, em Electron headed.
+- Um comando direcionado aceita um ID de ticket por execução, valida o caminho dentro do tracker e exige o spec correspondente. Executa Cypress com exatamente um `--spec`, em Electron dentro de uma tela virtual Xvfb.
 - A gravação Cypress fica habilitada para `cypress run`. O comando direcionado usa uma pasta nova `logs/e2e/<feature>/<issue>/<timestamp>/`, com log do processo e vídeo MP4 do spec. Cada execução conserva seus arquivos e imprime seus caminhos. A pasta `logs/` já é ignorada pelo Git.
 - A execução da jornada usa o estado-base de teste preparado e validado. Só fluxos cujo comportamento é o provisionamento/ativação ou preparação de fixture poderão preparar esse estado específico; as demais jornadas não repetem interativamente esses cadastros.
-- Os 33 testes correspondem aos 33 tickets atualmente `ready-for-human`, identificados no inventário da seção Further Notes e nos tickets deste pacote. Tickets `wontfix` não geram testes de comportamento ativo; tickets cujo escopo foi substituído devem verificar a decisão vigente, como a ausência de integração operacional e-MEC ou de auditoria no MVP.
+- Os 33 testes originais correspondiam aos tickets funcionais `ready-for-human` identificados na implantação inicial deste pacote. O novo CRUD de atos regulatórios acrescenta um spec independente; tickets `wontfix` não geram testes de comportamento ativo, e tickets cujo escopo foi substituído verificam a decisão vigente, como a ausência de integração operacional e-MEC ou de auditoria no MVP.
 - Para uso diário, rode o teste E2E do ticket alterado e as verificações unitárias/HTTP/SQLite diretamente relacionadas. `npm run test:all` fica reservado para uma regressão ampla, integração de mudanças ou solicitação explícita.
 - Não executar verificações PostgreSQL durante desenvolvimento ou teste; o runtime e as fixtures usam SQLite.
 
@@ -40,8 +40,8 @@ Manter um teste Cypress E2E separado para cada um dos 33 tickets existentes em `
 - Cada spec cobre somente o fluxo de seu ticket de origem e deve começar de uma fixture determinística, declarada e validada antes da ação principal.
 - Teste por ticket deve falhar se o spec não existir, se nenhum teste for descoberto ou se o fluxo depender de cadastro base ausente.
 - Testar o comando runner por unidade: parsing do ID, rejeição de traversal/ID inválido, correspondência ticket-spec, montagem do comando seletivo e destinos únicos de log/vídeo.
-- A evidência E2E inclui execução headed, resultado Cypress e vídeo presente tanto em sucesso quanto em falha.
-- Prior art: `frontend/cypress.config.ts`, jornada visível existente, backend E2E com cenário acadêmico local, `scripts/run-tests.mjs` e `npm run test:all`.
+- A evidência E2E inclui resultado Cypress e vídeo presente tanto em sucesso quanto em falha, sem janela visível no desktop do usuário.
+- Prior art: `frontend/cypress.config.ts`, jornada E2E existente, backend E2E com cenário acadêmico local, `scripts/run-tests.mjs` e `npm run test:all`.
 
 ## Out of Scope
 

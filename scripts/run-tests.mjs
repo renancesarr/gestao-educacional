@@ -30,7 +30,7 @@ const commands = [
   ['Lint frontend', ['--prefix', 'frontend', 'run', 'lint']],
   ['Typecheck frontend', ['--prefix', 'frontend', 'run', 'typecheck']],
   ['Build frontend', ['--prefix', 'frontend', 'run', 'build']],
-  ['E2E visível no navegador', ['--prefix', 'frontend', 'run', 'test:e2e']],
+  ['E2E em tela virtual com gravação de vídeo', ['--prefix', 'frontend', 'run', 'test:e2e']],
 ];
 
 function writeLine(line) {

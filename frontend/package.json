@@ -12,7 +12,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "node --test --test-isolation=none src/lib/*.test.ts",
-    "test:e2e": "cypress run --headed --browser electron --spec cypress/e2e/platform-journey.cy.ts",
+    "test:e2e": "node ../scripts/run-cypress-hidden.mjs run --headed --browser electron --spec cypress/e2e/platform-journey.cy.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

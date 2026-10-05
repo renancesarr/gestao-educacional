@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hasExecutedTests, planTicketE2ERun } from './e2e-ticket-runner.mjs';
+import { commandForHiddenDisplay, hasExecutedTests, planTicketE2ERun } from './e2e-ticket-runner.mjs';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ticketId = process.argv[2];
@@ -32,16 +32,17 @@ const logFile = join(runDirectory, 'run.txt');
 const cypressArgs = [...plan.cypressArgs];
 cypressArgs[cypressArgs.indexOf('--config') + 1] = cypressArgs[cypressArgs.indexOf('--config') + 1]
   .replace(plan.videoDirectory, videoDirectory);
+const launch = commandForHiddenDisplay(process.execPath, [plan.cypressExecutable, ...cypressArgs]);
 
 const logLines = [
   `Ticket: ${ticketId}`,
   `Início: ${new Date().toISOString()}`,
   `Spec: ${plan.specRelativePath}`,
   `Vídeos: ${videoDirectory}`,
-  `Comando: node ${plan.cypressExecutable} ${cypressArgs.join(' ')}`,
+  `Comando: ${launch.command} ${launch.args.join(' ')}`,
   '',
 ];
-const result = spawnSync(process.execPath, [plan.cypressExecutable, ...cypressArgs], {
+const result = spawnSync(launch.command, launch.args, {
   cwd: join(repositoryRoot, 'frontend'),
   env: { ...process.env, GESTAO_E2E_TICKET: ticketId },
   encoding: 'utf8',
