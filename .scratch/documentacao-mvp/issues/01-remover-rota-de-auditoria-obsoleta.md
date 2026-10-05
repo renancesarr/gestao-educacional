@@ -1,6 +1,6 @@
 # Remover endpoint de auditoria obsoleto da documentação do MVP
 **Priority:** 2
-**Status:** ready-for-human
+**Status:** done
 
 ## What to build
 Remover da tabela HTTP de `docs/EXECUCAO.md` a rota `GET /api/people/:id/audit`, que responde 404 e não está disponível no MVP. Preservar a explicação de que auditoria continua prevista para o sistema completo.
@@ -13,3 +13,4 @@ Remover da tabela HTTP de `docs/EXECUCAO.md` a rota `GET /api/people/:id/audit`,
 ## Comments
 
 - 2026-10-04: removida a linha obsoleta da tabela HTTP; as notas sobre auditoria fora do MVP permanecem. `rg -n '/api/people/:id/audit' docs/EXECUCAO.md` não encontra ocorrência.
+- 2026-10-04: ticket aceito conforme a instrução do usuário para aprovar os tickets `ready-for-human`; revisão dedicada retornou ACCEPT.

@@ -1,5 +1,5 @@
 # Alinhamento da documentação executável do MVP
-Status: ready-for-human
+Status: done
 
 ## Escopo
 Manter a documentação operacional consistente com as rotas e comportamentos atualmente disponíveis no MVP, preservando a distinção entre auditoria do sistema completo e recorte sem auditoria do MVP.
