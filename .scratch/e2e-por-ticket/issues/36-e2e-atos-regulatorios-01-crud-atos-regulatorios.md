@@ -14,5 +14,5 @@
 
 - Spec: `frontend/cypress/e2e/tickets/atos-regulatorios/01-crud-atos-regulatorios.cy.ts`
 - Comando: `npm run test:e2e:ticket -- atos-regulatorios/01-crud-atos-regulatorios`
-- Execução aprovada (1/1), 2026-10-05. Vídeo: `logs/e2e/atos-regulatorios/01-crud-atos-regulatorios/2026-10-05T04-22-23-250Z/videos/01-crud-atos-regulatorios.cy.ts.mp4`.
-- Log: `logs/e2e/atos-regulatorios/01-crud-atos-regulatorios/2026-10-05T04-22-23-250Z/run.txt`.
+- Execução aprovada (1/1), 2026-10-05. Vídeo: `logs/e2e/atos-regulatorios/01-crud-atos-regulatorios/2026-10-05T05-48-17-538Z/videos/01-crud-atos-regulatorios.cy.ts.mp4`.
+- Log: `logs/e2e/atos-regulatorios/01-crud-atos-regulatorios/2026-10-05T05-48-17-538Z/run.txt`.

@@ -7,7 +7,7 @@ A suíte E2E atual concentra fluxos diferentes em uma jornada Cypress, não grav
 
 ## Solution
 
-Manter um teste Cypress E2E separado para cada ticket funcional ativo. O conjunto inicial tinha 33 tickets; o CRUD de atos regulatórios acrescenta um 34º fluxo funcional. O identificador do ticket local seleciona um único arquivo de teste e executa esse fluxo no Electron dentro de uma tela virtual Xvfb. Cada execução produz um vídeo MP4 e um log textual em diretório único por ticket/data/hora, sem abrir uma janela no desktop do usuário. O uso normal durante a implementação é executar apenas o E2E do ticket alterado; a suíte completa permanece disponível para verificações amplas explicitamente necessárias.
+Manter um teste Cypress E2E separado para cada ticket funcional ativo. O conjunto inicial tinha 33 specs; o CRUD de atos regulatórios acrescenta o spec do ticket 34 e a seleção desses atos na matrícula acrescenta o spec do ticket 35. O identificador do ticket local seleciona um único arquivo de teste e executa esse fluxo no Electron dentro de uma tela virtual Xvfb. Cada execução produz um vídeo MP4 e um log textual em diretório único por ticket/data/hora, sem abrir uma janela no desktop do usuário. O uso normal durante a implementação é executar apenas o E2E do ticket alterado; a suíte completa permanece disponível para verificações amplas explicitamente necessárias.
 
 ## User Stories
 
@@ -54,10 +54,10 @@ Manter um teste Cypress E2E separado para cada ticket funcional ativo. O conjunt
 
 ## Further Notes
 
-O pacote possui um ticket de infraestrutura e um ticket E2E separado por cada ticket de origem ativo. O runner e os 33 specs estão implementados; todas as jornadas foram executadas individualmente em Electron headed e têm MP4/logs locais. O levantamento inicial encontrou 33 tickets `ready-for-human`; três tickets `wontfix` não fazem parte desta contagem. Fluxos sem superfície web, como emitir recuperação local, têm a operação coberta por testes direcionados e o passo de acesso/ativação confirmado pela jornada visível.
+O pacote possui um ticket de infraestrutura e um ticket E2E por ticket funcional coberto. A base original tinha 33 specs; os tickets de CRUD de atos e seleção de atos na matrícula acrescentam mais dois. Cada jornada é executada individualmente em Electron dentro de Xvfb no Linux, sem janela no desktop, com MP4 e log locais.
 
 ## Revisão e próximo trabalho
 
 Em 2026-10-03, os 33 specs de ticket foram revisados com execução individual aprovada, log e MP4. O ticket de infraestrutura e os 33 tickets E2E foram aceitos. Dois tickets funcionais antigos do e-MEC foram reclassificados como `wontfix` pela ADR 0017; E2Es correspondentes validam a remoção da operação.
 
-A revisão ampla executou os 34 specs no mesmo backend em memória: 30 passaram e quatro falharam após estado compartilhado (avaliação duplicada, curso extra, conta SUPER_ADMIN já ativada e colaborador de cenário alterado). Como a regra aprovada é executar somente o E2E do ticket afetado, o próximo ticket limita o E2E da suíte ampla à jornada-base e mantém os 33 specs disponíveis pelo runner seletivo.
+A revisão ampla executou os 34 specs originais no mesmo backend em memória: 30 passaram e quatro falharam após estado compartilhado (avaliação duplicada, curso extra, conta SUPER_ADMIN já ativada e colaborador de cenário alterado). Como a regra aprovada é executar somente o E2E do ticket afetado, o E2E amplo continua limitado à jornada-base; os 35 specs funcionais são executados pelo runner seletivo.
