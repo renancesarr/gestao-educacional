@@ -70,7 +70,7 @@ export function PlatformAccess() {
   </section></main>;
 
   return <main className="workspace"><header className="topbar"><Link className="brand" href="/">Gestão Educacional</Link><div><span>Operador · {session.username}</span><button className="quiet" onClick={() => void run(async () => { const { logoutPlatformSession } = await import('../lib/platform-auth.ts'); await logoutPlatformSession(); setSession(null); })}>Sair</button></div></header>
-    <div className="page-heading"><span className="eyebrow">SUPER_ADMIN</span><h1>Configuração institucional</h1><p>Comece criando uma instituição ou abra uma pelo ID interno.</p><p><Link className="button-link" href="/public-catalog">Catálogo público do INEP</Link></p></div>
+    <div className="page-heading"><span className="eyebrow">SUPER_ADMIN</span><h1>Configuração institucional</h1><p>Comece criando uma instituição ou abra uma pelo ID interno.</p><p><Link className="button-link" href="/public-catalog">Catálogo público do INEP</Link> <Link className="button-link" href="/gerador-carimbos">Gerador de carimbos</Link></p></div>
     <div className="setup-grid"><section className="card"><h2>Criar instituição</h2><form className="stack" onSubmit={event => void submitInstitution(event)}>
       <div className="two-col"><label>Nome da instituição<input name="name" required maxLength={200} /></label><label>Código institucional<input name="code" required minLength={2} maxLength={100} pattern="[a-z0-9][a-z0-9-]{1,99}" /></label></div>
       <fieldset><legend>Escopo de ensino</legend><div className="scope-grid">{scopes.map((item, index) => <label className="check" key={item.title}><input type="checkbox" name={`scope-${index}`} />{item.title}</label>)}</div></fieldset>
