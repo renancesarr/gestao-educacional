@@ -86,6 +86,18 @@ _Avoid_: Frequência por turma ou oferta, importação em lote no MVP
 Vínculo profissional único de uma pessoa já cadastrada no tenant, reutilizável para lecionar matérias de vários cursos da instituição. É criado apenas com o ID interno da pessoa e falha se ela não existir no tenant. Possui `ativo`, iniciado como verdadeiro; sua desativação preserva vínculos, mas pode deixar matéria sem professor ativo e bloquear novas matrículas no curso até correção. Por enquanto não possui outros dados, conta de acesso ou permissões próprias. Um professor vinculado a uma matéria deve ser colaborador do mesmo tenant. Colaboradores são listados pelo nome da pessoa.
 _Avoid_: Nome livre de professor, colaborador de outro tenant, conta de acesso implícita
 
+**Funcionário administrativo**:
+Vínculo de uma pessoa existente ao quadro administrativo de uma instituição. No MVP é distinto de `Colaborador da instituição`, que representa vínculo acadêmico de docência. Deve pertencer ao tenant e pode ser ativado ou desativado; cargos de diretor e responsável pelos registros acadêmicos só podem ser atribuídos a funcionário ativo. Sua assinatura manuscrita e seu carimbo são ativos do seu perfil individual; a prontidão usa os ativos do funcionário atualmente responsável pelos registros.
+_Avoid_: Colaborador acadêmico, funcionário de outro tenant, pessoa com conta implícita
+
+**Diretor**:
+Funcionário administrativo designado como diretor atual da instituição para identificação em operações e documentos. Cada instituição tem no máximo um diretor atual no perfil documental.
+_Avoid_: Diretor cadastrado como texto livre sem vínculo de pessoa
+
+**Responsável pelos registros acadêmicos**:
+Funcionário administrativo designado pela instituição para responder pelos registros e documentos acadêmicos. Pode ser a mesma pessoa que o diretor. No MVP é a pessoa cujos ativos de assinatura e carimbo acompanham a configuração documental.
+_Avoid_: Assinante sem vínculo institucional, responsável de outro tenant
+
 
 ### Vida acadêmica
 
@@ -185,6 +197,22 @@ _Avoid_: Acesso irrestrito ao cadastro do aluno
 
 ### Registros e documentos
 
+**Gerador de carimbos**:
+Ferramenta local que compõe uma imagem a partir de texto, cor, fonte e formato quadrado/redondo. Oferece prévia e download PNG/SVG, sem persistir cadastro ou associar o carimbo a pessoa, instituição ou documento nesta etapa.
+_Avoid_: Gerador de assinatura, assinatura digital, emissão documental.
+
+**Perfil documental da instituição**:
+Configuração tenant-scoped com a marca institucional enviada em PNG ou SVG e as designações de diretor e responsável pelos registros acadêmicos. O cabeçalho padrão posiciona o Selo Nacional à esquerda e a marca enviada pela instituição à direita. A marca d'água usa a marca da instituição no canto inferior direito com opacidade de 10%.
+_Avoid_: Logo inferida automaticamente pela rede, template HTML editável no MVP
+
+**Prontidão documental**:
+Estado derivado que indica se a instituição tem marca, diretor ativo, responsável ativo, assinatura PNG e carimbo PNG configurados. Instituição pode existir incompleta, mas só fica pronta para emitir documentos quando todos os requisitos estão atendidos.
+_Avoid_: Instituição inválida para todos os usos, emissão com responsável ausente
+
+**Assinatura demonstrativa**:
+Representação interna da assinatura manuscrita PNG e do carimbo PNG do funcionário. A prontidão da instituição usa os ativos do funcionário designado como responsável pelos registros acadêmicos. O QR correspondente, quando integrado ao documento, segue rota distinta do QR de matrícula e não comprova assinatura criptográfica, ICP-Brasil ou autenticidade oficial.
+_Avoid_: Assinatura digital real, assinatura criptográfica
+
 **Ato regulatório**:
 Texto manual associado a uma instituição ou a um curso operacional desse tenant, independente de qualquer aluno. Pode haver vários atos por alvo e cada ato tem status manual `ativo`, `vencido`, `suspenso` ou `revogado`. O CRUD do MVP não armazena anexos nem tipos separados. Fluxos consumidores selecionam explicitamente o ato e sua versão; atos já referenciados por matrícula ou documento não podem ser excluídos.
 _Avoid_: Ato como documento anexado obrigatório, ato associado a aluno, status calculado automaticamente
@@ -194,7 +222,7 @@ Texto e status de uma edição do ato. A cada edição, o operador escolhe prese
 _Avoid_: Versão atualizada por vencimento automático, histórico obrigatório de toda edição
 
 **Uso de ato regulatório**:
-Referência da matrícula ou emissão de documento ao ato e à versão selecionados. Na matrícula, são escolhidos separadamente um ato da instituição e um do curso; o registro preserva texto/status selecionados. O vínculo protege o ato contra exclusão e não é uma trilha geral de auditoria. Exceções por ato ausente ou status inativo guardam responsável autenticado, data/hora e justificativa na própria matrícula. Histórico, diploma e comprovante ainda não consomem atos.
+Referência da matrícula ou emissão de documento ao ato e à versão selecionados. Na matrícula, são escolhidos separadamente um ato da instituição e um do curso; o registro preserva texto/status selecionados. O comprovante de matrícula também seleciona e preserva os dois atos usados na emissão, inclusive se inativos, exigindo justificativa para permitir essa emissão. O vínculo protege o ato contra exclusão e não é uma trilha geral de auditoria. Exceções na matrícula guardam responsável autenticado, data/hora e justificativa na própria matrícula. Histórico e diploma ainda precisam definir como consomem atos nos respectivos fluxos de emissão.
 _Avoid_: Auditoria transversal, uso implícito do ato mais recente
 
 **Registro de auditoria**:
