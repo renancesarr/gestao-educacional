@@ -73,6 +73,9 @@ test('HTTP: instituição designa diretor e responsável administrativo e rejeit
     const invalidLogo = await fetch(logoUrl, { method: 'PUT', headers: { Origin: origin, Cookie: `platform_session=${session.token}`, 'Content-Type': 'image/svg+xml' },
       body: '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>' });
     assert.equal(invalidLogo.status, 400);
+    const malformedLogo = await fetch(logoUrl, { method: 'PUT', headers: { Origin: origin, Cookie: `platform_session=${session.token}`, 'Content-Type': 'image/svg+xml' },
+      body: '<svg xmlns="http://www.w3.org/2000/svg"><g></svg>' });
+    assert.equal(malformedLogo.status, 400);
     const readLogo = await fetch(logoUrl, { headers: { Origin: origin, Cookie: `platform_session=${session.token}` } });
     assert.equal(readLogo.status, 200);
     assert.deepEqual(Buffer.from(await readLogo.arrayBuffer()), logoBytes);

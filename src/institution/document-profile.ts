@@ -1,6 +1,8 @@
 import { ApplicationError, readOrWrite } from '../shared/errors.ts';
 import type { InstitutionOperationContext } from './operation-context.ts';
 import type { Person } from '../people/index.ts';
+import { isValidPng } from './png-validation.ts';
+import { validateSvg } from './svg-validation.ts';
 
 export type InstitutionImageType = 'image/png' | 'image/svg+xml';
 export type DocumentAssetKind = 'logo' | 'signature' | 'stamp';
@@ -72,62 +74,6 @@ export function validateInstitutionImage(kind: DocumentAssetKind, mediaType: str
       : 'A assinatura e o carimbo devem ser PNG válidos.');
   }
   return { mediaType: 'image/png', bytes: new Uint8Array(bytes) };
-}
-
-function isValidPng(bytes: Uint8Array): boolean {
-  const signature = [137, 80, 78, 71, 13, 10, 26, 10];
-  if (bytes.length < 57 || signature.some((value, index) => bytes[index] !== value)) return false;
-  let offset = 8;
-  let sawHeader = false;
-  let sawData = false;
-  let sawEnd = false;
-  while (offset + 12 <= bytes.length) {
-    const length = readU32(bytes, offset);
-    if (length > bytes.length - offset - 12) return false;
-    const name = String.fromCharCode(bytes[offset + 4]!, bytes[offset + 5]!, bytes[offset + 6]!, bytes[offset + 7]!);
-    const chunkEnd = offset + length + 12;
-    const expectedCrc = readU32(bytes, offset + 8 + length);
-    if (crc32(bytes.subarray(offset + 4, offset + 8 + length)) !== expectedCrc) return false;
-    if (!sawHeader) {
-      if (name !== 'IHDR' || length !== 13) return false;
-      const width = readU32(bytes, offset + 8);
-      const height = readU32(bytes, offset + 12);
-      if (!width || !height || width > 10000 || height > 10000) return false;
-      sawHeader = true;
-    } else if (name === 'IHDR') return false;
-    if (name === 'IDAT' && length > 0) sawData = true;
-    if (name === 'IEND') {
-      if (length !== 0 || chunkEnd !== bytes.length) return false;
-      sawEnd = true;
-      break;
-    }
-    offset = chunkEnd;
-  }
-  return sawHeader && sawData && sawEnd;
-}
-
-function readU32(bytes: Uint8Array, offset: number): number {
-  return bytes[offset]! * 0x1000000 + (bytes[offset + 1]! << 16) + (bytes[offset + 2]! << 8) + bytes[offset + 3]!;
-}
-
-function crc32(bytes: Uint8Array): number {
-  let crc = 0xffffffff;
-  for (const byte of bytes) {
-    crc ^= byte;
-    for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
-  }
-  return (crc ^ 0xffffffff) >>> 0;
-}
-
-function validateSvg(bytes: Uint8Array): void {
-  let source: string;
-  try { source = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
-  catch { throw new ApplicationError('INVALID_INPUT', 'O arquivo SVG deve conter texto UTF-8 válido.'); }
-  const normalized = source.replace(/^\uFEFF/, '').trim();
-  if (!/^<svg(?:\s|>)/i.test(normalized.replace(/^<\?xml[^>]*>\s*/i, '')) ||
-      /<!DOCTYPE|<!ENTITY|<\s*(?:script|foreignObject|iframe|object|embed|image|audio|video)\b|\bon[a-z]+\s*=|\b(?:href|src)\s*=|url\s*\(|@import\b|javascript:/i.test(normalized)) {
-    throw new ApplicationError('INVALID_INPUT', 'O SVG contém elementos ou referências não permitidos.');
-  }
 }
 
 function readiness(profile: Omit<InstitutionDocumentProfile, 'readiness'>): InstitutionDocumentProfile['readiness'] {
