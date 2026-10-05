@@ -15,6 +15,7 @@ import { postgresAcademicStore } from './database/academic-store.ts';
 import { createSqliteIdentityStore } from './database/sqlite-identity-store.ts';
 import { createSqlitePeopleStore } from './database/sqlite-people-store.ts';
 import { createSqliteInstitutionOnboardingStore } from './database/sqlite-institution-onboarding-store.ts';
+import { createSqliteInstitutionDocumentProfileStore } from './database/sqlite-institution-document-profile-store.ts';
 import { createSqliteAcademicStore } from './database/sqlite-academic-store.ts';
 import { createSqlitePlatformIdentityStore } from './database/sqlite-platform-identity-store.ts';
 import { createSqlitePublicCatalogStore } from './database/sqlite-public-catalog-store.ts';
@@ -29,6 +30,7 @@ import { createAcademicHistoryService } from './academic/history.ts';
 import { createSqliteAcademicHistoryStore } from './database/sqlite-academic-history-store.ts';
 import { createSqliteRegulatoryActStore } from './database/sqlite-regulatory-act-store.ts';
 import { createRegulatoryActsService } from './regulatory_acts/index.ts';
+import { createInstitutionDocumentProfileService } from './institution/document-profile.ts';
 
 const port = Number(process.env.PORT ?? '3000');
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT inválida.');
@@ -61,6 +63,10 @@ const regulatoryActs = createRegulatoryActsService({ store: regulatoryActStore,
   newId: randomUUID });
 const publicCatalog = createPublicCatalogService({ store: createSqlitePublicCatalogStore(database), now: () => new Date(), newId: randomUUID });
 const globalPeople = createGlobalPeopleService({ store, now: () => new Date(), newId: randomUUID });
+const institutionDocuments = createInstitutionDocumentProfileService({
+  store: createSqliteInstitutionDocumentProfileStore(database), people: globalPeople,
+  now: () => new Date(), newId: randomUUID,
+});
 const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now: () => new Date(), newId: randomUUID,
   regulatoryActs });
 const publicStudentSearch = createPublicStudentSearchService({ store: createSqlitePublicStudentSearchStore(database!) });
@@ -74,6 +80,7 @@ const server = createHttpServer({
     webAuthn: createPlatformWebAuthn({ origin, rpName: 'Gestão acadêmica' }) }),
   people: createPeopleService({ store, now: () => new Date(), newId: randomUUID }),
   globalPeople,
+  institutionDocuments,
   superAdmin: createSuperAdminService({ store: onboardingStore, now: () => new Date(), newId: randomUUID }),
   globalAcademic,
   globalStudentSearch: createGlobalStudentSearchService({ people: globalPeople, academic: globalAcademic }),

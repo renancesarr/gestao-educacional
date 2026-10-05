@@ -9,3 +9,5 @@ data/*.sqlite-wal
 __pycache__/
 CSV_DADOS_ABERTOS
 frontend/cypress/videos/
+frontend/cypress/downloads/
+frontend/cypress/screenshots/

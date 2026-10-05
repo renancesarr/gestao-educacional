@@ -21,6 +21,8 @@ import { createAcademicHistoryService } from '../../src/academic/history.ts';
 import { MemoryAcademicHistoryStore } from './memory-academic-history-store.ts';
 import { createRegulatoryActsService } from '../../src/regulatory_acts/index.ts';
 import { MemoryRegulatoryActStore } from './memory-regulatory-act-store.ts';
+import { MemoryInstitutionDocumentProfileStore } from './memory-institution-document-profile-store.ts';
+import { createInstitutionDocumentProfileService } from '../../src/institution/document-profile.ts';
 
 export async function fixtureServices() {
   const passwordHash = await hashPassword('senha-ficticia-longa');
@@ -37,6 +39,12 @@ export async function fixtureServices() {
   const institutionStore = new MemoryInstitutionOnboardingStore();
   const targetStore = new MemoryInstitutionTargetStore(accounts.map(account => account.tenantId));
   const globalPeople = createGlobalPeopleService({ store, now: () => new Date(), newId: randomUUID });
+  const institutionDocumentStore = new MemoryInstitutionDocumentProfileStore([
+    { id: accounts[0]!.tenantId, code: accounts[0]!.institution, name: accounts[0]!.institutionName },
+    { id: accounts[1]!.tenantId, code: accounts[1]!.institution, name: accounts[1]!.institutionName },
+  ]);
+  const institutionDocuments = createInstitutionDocumentProfileService({ store: institutionDocumentStore, people: globalPeople,
+    now: () => new Date('2026-10-05T12:00:00.000Z'), newId: randomUUID });
   const academicStore = new MemoryAcademicStore({ tenantId: accounts[0]!.tenantId,
     educationScope: [{ level: 'BASIC', stage: 'FUNDAMENTAL' }] });
   const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now: () => new Date(), newId: randomUUID });
@@ -68,6 +76,8 @@ export async function fixtureServices() {
         verifyAuthentication: async () => ({ verified: true, userVerified: true, newCounter: 1 }),
       } }),
     institutionStore,
+    institutionDocumentStore,
+    institutionDocuments,
     superAdmin: createSuperAdminService({ store: institutionStore, now: () => new Date(), newId: randomUUID }),
     institutionOperationContext: createInstitutionOperationContextService({ targets: targetStore }),
     publicCatalog: createPublicCatalogService({ store: new MemoryPublicCatalogStore(), now: () => new Date(), newId: randomUUID }),

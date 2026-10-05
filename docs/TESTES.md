@@ -1,4 +1,8 @@
 # Testes unitários isolados
+
+## Gerador de carimbos
+
+Execute somente sua jornada com `npm run test:e2e:ticket -- gerador-carimbos/01-gerador-carimbos`. O cenário usa a interface e verifica os arquivos baixados: SVG com texto literal e PNG 400 × 400 transparente, comparado por pixels à prévia. Também verifica texto vazio e limite de espaço legível. Vídeo e log por execução ficam em `logs/e2e/gerador-carimbos/01-gerador-carimbos/`. Veja [as instruções de uso](GERADOR-CARIMBOS.md). A entrega não exige testes de API ou banco novos.
 ## Suíte completa disponível
 O código atual cobre os fluxos implementados do MVP e não exige auditoria em pessoas, identidade ou onboarding. As operações de auditoria permanecem fora do MVP, e o módulo sistêmico é mantido para evolução futura. A integração de catálogos e-MEC não pertence ao MVP; buscas ampliadas de alunos e CRUDs acadêmicos têm especificações e tickets próprios. Para revisar entregas e atualizar o status dos tickets, siga [REVISAO-TICKETS.md](REVISAO-TICKETS.md).
 Com Node.js 24.12 ou superior e dependências instaladas, execute toda a suíte padrão com um comando:
@@ -21,7 +25,7 @@ O ID é o caminho do ticket sob `.scratch/`, sem `.md`. O runner confere se o ti
 
 Cada execução cria um diretório exclusivo em `logs/e2e/<feature>/<NN-ticket>/<timestamp>/`, contendo `run.txt` e `videos/<spec>.mp4`. Os logs e vídeos são evidências locais e não devem ser adicionados ao Git. O navegador fica dentro da tela virtual e oculto no desktop; ao terminar, o terminal informa os caminhos do log e do vídeo. Para uma mudança rotineira, execute primeiro os testes direcionados do ticket e as verificações unitárias/HTTP/SQLite correspondentes. `npm run test:all` continua reservado para regressão ampla quando necessário.
 
-A cobertura E2E tem 35 specs separados para os fluxos funcionais e um ticket de infraestrutura do runner. Cada spec de ticket é executado individualmente pelo comando seletivo e possui vídeo MP4 e log em `logs/e2e/`. A suíte ampla seleciona apenas `platform-journey.cy.ts`, evitando estado compartilhado entre tickets; a revisão de 2026-10-03 havia encontrado quatro falhas quando todos os specs eram executados em sequência. A especificação, o inventário e os tickets individuais estão em `.scratch/e2e-por-ticket/`; para mudança futura, execute somente o ticket alterado e suas verificações relacionadas.
+A cobertura E2E tem 41 specs separados para os fluxos funcionais e um ticket de infraestrutura do runner. Cada spec de ticket é executado individualmente pelo comando seletivo e possui vídeo MP4 e log em `logs/e2e/`. A suíte ampla seleciona apenas `platform-journey.cy.ts`, evitando estado compartilhado entre tickets; a revisão de 2026-10-03 havia encontrado quatro falhas quando todos os specs eram executados em sequência. A especificação, o inventário e os tickets individuais estão em `.scratch/e2e-por-ticket/`; para mudança futura, execute somente o ticket alterado e suas verificações relacionadas.
 
 Decisão do usuário: testes unitários isolados. A fronteira testada é a interface pública dos serviços; banco, HTTP, Docker e rede não participam da execução.
 ## Execução
@@ -75,6 +79,10 @@ npm run test:sqlite
 ```
 Os testes HTTP exercitam login, atributos do cookie, negação de origem externa, autorização, consulta cruzada por ID, busca, duplicidade, ausência de rotas de auditoria e revogação; o onboarding global cobre passkey fixture, exigência de sessão, campos de escopo e respostas de validação/conflito.
 Atos regulatórios têm testes unitários do serviço, HTTP com sessão global e instituição-alvo, e SQLite em memória para preservação de versão, isolamento de tenant e bloqueio de exclusão após uso. O E2E com tela virtual está em `.scratch/atos-regulatorios/issues/01-crud-atos-regulatorios.md`; execute-o pelo runner seletivo.
+
+O perfil documental institucional possui testes HTTP e SQLite para marca PNG/SVG, validação de uploads, funcionários administrativos, designações do diretor e responsável pelos registros, ativos PNG associados individualmente a funcionários, prontidão e isolamento por tenant. A prontidão olha os ativos da pessoa atualmente designada como responsável. Os três E2Es independentes ficam em `.scratch/perfil-institucional-documentos/`; cada comando seletivo gera um MP4 e log local em `logs/e2e/perfil-institucional-documentos/`.
+
+Na implementação do perfil documental, foi observado ciclo Red-Green para a rejeição de `@import` remoto em SVG, remoção HTTP da marca e rotas de assinatura/carimbo associadas ao funcionário; cada teste focado falhou antes da respectiva correção e passou depois. Os testes originais de vínculo de funcionários e parte do fluxo de marca foram acrescentados depois da implementação inicial desses fluxos: são cobertura de regressão validada, mas não contam como ciclos TDD observados nesta entrega.
 ## Verificação da interface
 A interface foi exercitada no navegador da aplicação com fixture local: login, cadastro, consulta, duplicidade e navegação da jornada institucional. O E2E executa com Cypress/Electron em Xvfb e grava vídeo; auditoria não é uma tela nem comportamento do MVP.
 Foram inspecionados layouts de uma e duas colunas. O navegador aplicou larguras efetivas diferentes das solicitadas (425, 907 e 1451 CSS px para pedidos de 375, 800 e 1280); a leitura do DOM não detectou overflow horizontal. As capturas apresentaram limitações de recorte, portanto não há validação visual conclusiva nos tamanhos exatos solicitados nem alegação de acessibilidade universal ou compatibilidade entre navegadores.
