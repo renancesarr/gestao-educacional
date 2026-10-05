@@ -11,6 +11,7 @@ import type { createInstitutionOperationContextService, createSuperAdminService 
 import type { createPublicCatalogService, PublicCatalogVersion } from '../public_catalog/index.ts';
 import type { createCredentialService } from '../credential/index.ts';
 import type { createAcademicHistoryService } from '../academic/history.ts';
+import type { createRegulatoryActsService } from '../regulatory_acts/index.ts';
 import { parseInepSchoolCsv } from '../public_catalog/inep-csv.ts';
 import { ApplicationError, type ErrorCode } from '../shared/errors.ts';
 
@@ -27,6 +28,7 @@ interface Services {
   publicCatalog: ReturnType<typeof createPublicCatalogService>;
   credentials: ReturnType<typeof createCredentialService>;
   academicHistory: ReturnType<typeof createAcademicHistoryService>;
+  regulatoryActs: ReturnType<typeof createRegulatoryActsService>;
 }
 const statuses: Record<ErrorCode, number> = { UNAUTHENTICATED: 401, FORBIDDEN: 403, INVALID_INPUT: 400,
   NOT_FOUND: 404, CONFLICT: 409, UNAVAILABLE: 503, RATE_LIMITED: 429 };
@@ -253,6 +255,32 @@ export function createHttpServer(services: Services, options: { origin: string; 
         const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
         json(response, 201, await services.superAdmin.createInstitution(platform, await body(request))); return;
       }
+      if (request.method === 'POST' && url.pathname === '/api/platform/regulatory-acts') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['target', 'courseId', 'text', 'status']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 201, await services.regulatoryActs.create(context, input.operation)); return;
+      }
+      if (request.method === 'POST' && url.pathname === '/api/platform/regulatory-acts/search') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['target', 'courseId']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 200, await services.regulatoryActs.list(context, input.operation as { target?: 'institution' | 'course'; courseId?: string })); return;
+      }
+      const platformRegulatoryAct = new RegExp(`^/api/platform/regulatory-acts/(${uuid})$`, 'i').exec(url.pathname);
+      if (request.method === 'PATCH' && platformRegulatoryAct) {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['text', 'status', 'preservePreviousVersion']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 200, await services.regulatoryActs.update(context, platformRegulatoryAct[1]!, input.operation)); return;
+      }
+      if (request.method === 'DELETE' && platformRegulatoryAct) {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), []);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        await services.regulatoryActs.delete(context, platformRegulatoryAct[1]!);
+        json(response, 200, { deleted: true }); return;
+      }
       if (request.method === 'POST' && url.pathname === '/api/platform/credentials') {
         const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
         const input = targetInput(await body(request), ['studentId', 'courseId', 'type', 'issuedOn']);
@@ -464,7 +492,7 @@ export function createHttpServer(services: Services, options: { origin: string; 
       }
       if (request.method === 'POST' && url.pathname === '/api/platform/enrollments') {
         const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
-        const input = targetInput(await body(request), ['personId', 'courseId']);
+        const input = targetInput(await body(request), ['personId', 'courseId', 'regulatoryActs', 'allowRegulatoryException', 'regulatoryExceptionReason']);
         const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
         json(response, 201, await services.globalAcademic.createEnrollment(context, input.operation)); return;
       }

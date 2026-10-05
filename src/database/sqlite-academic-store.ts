@@ -71,6 +71,8 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
       course_id TEXT NOT NULL,
       student_profile_id TEXT NOT NULL,
       status TEXT NOT NULL CHECK (status IN ('ativa', 'trancada', 'cancelada', 'jubilada')),
+      regulatory_acts_json TEXT NOT NULL DEFAULT '[]',
+      regulatory_exception_json TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       UNIQUE (tenant_id, person_id, course_id),
@@ -125,6 +127,13 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
       FOREIGN KEY (tenant_id, subject_id) REFERENCES academic_subjects(tenant_id, id)
     );
   `);
+  const enrollmentColumns = database.prepare('PRAGMA table_info(academic_enrollments)').all() as { name: string }[];
+  if (!enrollmentColumns.some(column => column.name === 'regulatory_acts_json')) {
+    database.exec(`ALTER TABLE academic_enrollments ADD COLUMN regulatory_acts_json TEXT NOT NULL DEFAULT '[]'`);
+  }
+  if (!enrollmentColumns.some(column => column.name === 'regulatory_exception_json')) {
+    database.exec(`ALTER TABLE academic_enrollments ADD COLUMN regulatory_exception_json TEXT`);
+  }
   return {
     async hasEducationScope(tenantId, educationScope) {
       return Boolean(database.prepare(`SELECT 1 FROM institution_education_scope_items
@@ -252,9 +261,11 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
             .run(newStudentProfileId, value.tenantId, value.personId, value.createdAt);
           profile = { id: newStudentProfileId };
         }
-        database.prepare(`INSERT INTO academic_enrollments (id, tenant_id, person_id, course_id, student_profile_id, status, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(value.id, value.tenantId, value.personId, value.courseId,
-          profile.id, value.status, value.createdAt, value.updatedAt);
+        database.prepare(`INSERT INTO academic_enrollments
+          (id, tenant_id, person_id, course_id, student_profile_id, status, regulatory_acts_json, regulatory_exception_json, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(value.id, value.tenantId, value.personId, value.courseId,
+          profile.id, value.status, JSON.stringify(value.regulatoryActs ?? []),
+          value.regulatoryException ? JSON.stringify(value.regulatoryException) : null, value.createdAt, value.updatedAt);
         database.exec('COMMIT');
         return { ...value, studentProfileId: profile.id };
       } catch (error) {
@@ -264,7 +275,7 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
       }
     },
     async listEnrollments(tenantId, courseId, status) {
-      const rows = database.prepare(`SELECT e.id,e.tenant_id,e.person_id,p.name AS person_name,e.course_id,e.student_profile_id,e.status,e.created_at,e.updated_at
+      const rows = database.prepare(`SELECT e.id,e.tenant_id,e.person_id,p.name AS person_name,e.course_id,e.student_profile_id,e.status,e.regulatory_acts_json,e.regulatory_exception_json,e.created_at,e.updated_at
         FROM academic_enrollments e JOIN people_people p ON p.tenant_id=e.tenant_id AND p.id=e.person_id
         WHERE e.tenant_id = ? AND e.course_id = ?${status ? ' AND e.status = ?' : ''} ORDER BY p.name`)
         .all(...(status ? [tenantId, courseId, status] : [tenantId, courseId])) as unknown as EnrollmentRow[];
@@ -281,7 +292,7 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
         courseCode: row.course_code, status: row.status }));
     },
     async getEnrollment(tenantId, courseId, enrollmentId) {
-      const row = database.prepare(`SELECT e.id,e.tenant_id,e.person_id,p.name AS person_name,e.course_id,e.student_profile_id,e.status,e.created_at,e.updated_at
+      const row = database.prepare(`SELECT e.id,e.tenant_id,e.person_id,p.name AS person_name,e.course_id,e.student_profile_id,e.status,e.regulatory_acts_json,e.regulatory_exception_json,e.created_at,e.updated_at
         FROM academic_enrollments e JOIN people_people p ON p.tenant_id=e.tenant_id AND p.id=e.person_id
         WHERE e.tenant_id = ? AND e.course_id = ? AND e.id = ?`).get(tenantId, courseId, enrollmentId) as EnrollmentRow | undefined;
       return row ? enrollmentRow(row) : null;
@@ -290,7 +301,7 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
       const result = database.prepare(`UPDATE academic_enrollments SET status = ?, updated_at = ? WHERE tenant_id = ? AND course_id = ? AND id = ?`)
         .run(value.status, value.updatedAt, value.tenantId, value.courseId, value.id);
       if (!result.changes) return null;
-      const row = database.prepare(`SELECT e.id,e.tenant_id,e.person_id,p.name AS person_name,e.course_id,e.student_profile_id,e.status,e.created_at,e.updated_at
+      const row = database.prepare(`SELECT e.id,e.tenant_id,e.person_id,p.name AS person_name,e.course_id,e.student_profile_id,e.status,e.regulatory_acts_json,e.regulatory_exception_json,e.created_at,e.updated_at
         FROM academic_enrollments e JOIN people_people p ON p.tenant_id=e.tenant_id AND p.id=e.person_id
         WHERE e.tenant_id = ? AND e.course_id = ? AND e.id = ?`).get(value.tenantId, value.courseId, value.id) as EnrollmentRow | undefined;
       return row ? enrollmentRow(row) : null;
@@ -399,11 +410,14 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
 }
 
 interface EnrollmentRow { id: string; tenant_id: string; person_id: string; person_name: string; course_id: string;
-  student_profile_id: string; status: EnrollmentStatus; created_at: string; updated_at: string }
+  student_profile_id: string; status: EnrollmentStatus; regulatory_acts_json: string; regulatory_exception_json: string | null;
+  created_at: string; updated_at: string }
 
 function enrollmentRow(row: EnrollmentRow): Enrollment {
   return { id: row.id, tenantId: row.tenant_id, personId: row.person_id, personName: row.person_name,
     courseId: row.course_id, studentProfileId: row.student_profile_id, status: row.status,
+    regulatoryActs: JSON.parse(row.regulatory_acts_json) as NonNullable<Enrollment['regulatoryActs']>,
+    ...(row.regulatory_exception_json ? { regulatoryException: JSON.parse(row.regulatory_exception_json) as NonNullable<Enrollment['regulatoryException']> } : {}),
     createdAt: row.created_at, updatedAt: row.updated_at };
 }
 

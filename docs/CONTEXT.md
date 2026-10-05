@@ -185,6 +185,18 @@ _Avoid_: Acesso irrestrito ao cadastro do aluno
 
 ### Registros e documentos
 
+**Ato regulatório**:
+Texto manual associado a uma instituição ou a um curso operacional desse tenant, independente de qualquer aluno. Pode haver vários atos por alvo e cada ato tem status manual `ativo`, `vencido`, `suspenso` ou `revogado`. O CRUD do MVP não armazena anexos nem tipos separados. Fluxos consumidores selecionam explicitamente o ato e sua versão; atos já referenciados por matrícula ou documento não podem ser excluídos.
+_Avoid_: Ato como documento anexado obrigatório, ato associado a aluno, status calculado automaticamente
+
+**Versão de ato regulatório**:
+Texto e status de uma edição do ato. A cada edição, o operador escolhe preservar a versão vigente ou sobrescrevê-la sem histórico. Versões preservadas permanecem independentes, podem ser escolhidas em operações futuras e têm o texto selecionado copiado para o registro da operação que as utiliza.
+_Avoid_: Versão atualizada por vencimento automático, histórico obrigatório de toda edição
+
+**Uso de ato regulatório**:
+Referência da matrícula ou emissão de documento ao ato e à versão selecionados. Na matrícula, são escolhidos separadamente um ato da instituição e um do curso; o registro preserva texto/status selecionados. O vínculo protege o ato contra exclusão e não é uma trilha geral de auditoria. Exceções por ato ausente ou status inativo guardam responsável autenticado, data/hora e justificativa na própria matrícula. Histórico, diploma e comprovante ainda não consomem atos.
+_Avoid_: Auditoria transversal, uso implícito do ato mais recente
+
 **Registro de auditoria**:
 Evidência de uma ação relevante, com seu autor, momento, motivo e estado anterior quando aplicável; é requisito do sistema completo e está fora do MVP atual.
 _Avoid_: Histórico sem autoria
