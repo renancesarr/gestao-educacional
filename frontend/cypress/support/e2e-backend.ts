@@ -7,6 +7,7 @@ import { createIdentityService } from '../../../src/identity/index.ts';
 import { createSqliteAcademicStore } from '../../../src/database/sqlite-academic-store.ts';
 import { createSqliteIdentityStore } from '../../../src/database/sqlite-identity-store.ts';
 import { createSqliteInstitutionOnboardingStore } from '../../../src/database/sqlite-institution-onboarding-store.ts';
+import { createSqliteInstitutionDocumentProfileStore } from '../../../src/database/sqlite-institution-document-profile-store.ts';
 import { createSqlitePeopleStore } from '../../../src/database/sqlite-people-store.ts';
 import { createSqlitePublicCatalogStore } from '../../../src/database/sqlite-public-catalog-store.ts';
 import { createHttpServer } from '../../../src/http/server.ts';
@@ -21,6 +22,7 @@ import { createSqliteAcademicHistoryStore } from '../../../src/database/sqlite-a
 import { createSqliteRegulatoryActStore } from '../../../src/database/sqlite-regulatory-act-store.ts';
 import { createRegulatoryActsService } from '../../../src/regulatory_acts/index.ts';
 import { createInstitutionOperationContextService, createSuperAdminService } from '../../../src/super_admin/index.ts';
+import { createInstitutionDocumentProfileService } from '../../../src/institution/document-profile.ts';
 import { createPublicCatalogService } from '../../../src/public_catalog/index.ts';
 import { fixtureServices } from '../../../tests/support/fixture.ts';
 
@@ -40,6 +42,8 @@ const academicStore = createSqliteAcademicStore(database);
 const auth = await fixtureServices();
 const now = () => new Date();
 const globalPeople = createGlobalPeopleService({ store: peopleStore, now, newId: randomUUID });
+const institutionDocuments = createInstitutionDocumentProfileService({ store: createSqliteInstitutionDocumentProfileStore(database),
+  people: globalPeople, now, newId: randomUUID });
 function copyFixtureRows(table: string, columns: readonly string[]) {
   const rows = scenarioDatabase.prepare(`SELECT ${columns.join(', ')} FROM ${table}`).all() as Record<string, unknown>[];
   const insert = database.prepare(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${columns.map(() => '?').join(', ')})`);
@@ -88,6 +92,7 @@ const services = {
   platformIdentity: auth.platformIdentity,
   people: createPeopleService({ store: peopleStore, now, newId: randomUUID }),
   globalPeople,
+  institutionDocuments,
   institutionOperationContext: createInstitutionOperationContextService({ targets: {
     exists: async tenantId => scenarioTenantIds.has(tenantId) || peopleStore.exists(tenantId),
   } }),

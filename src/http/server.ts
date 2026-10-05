@@ -12,6 +12,7 @@ import type { createPublicCatalogService, PublicCatalogVersion } from '../public
 import type { createCredentialService } from '../credential/index.ts';
 import type { createAcademicHistoryService } from '../academic/history.ts';
 import type { createRegulatoryActsService } from '../regulatory_acts/index.ts';
+import type { createInstitutionDocumentProfileService } from '../institution/document-profile.ts';
 import { parseInepSchoolCsv } from '../public_catalog/inep-csv.ts';
 import { ApplicationError, type ErrorCode } from '../shared/errors.ts';
 
@@ -29,6 +30,7 @@ interface Services {
   credentials: ReturnType<typeof createCredentialService>;
   academicHistory: ReturnType<typeof createAcademicHistoryService>;
   regulatoryActs: ReturnType<typeof createRegulatoryActsService>;
+  institutionDocuments: ReturnType<typeof createInstitutionDocumentProfileService>;
 }
 const statuses: Record<ErrorCode, number> = { UNAUTHENTICATED: 401, FORBIDDEN: 403, INVALID_INPUT: 400,
   NOT_FOUND: 404, CONFLICT: 409, UNAVAILABLE: 503, RATE_LIMITED: 429 };
@@ -67,6 +69,23 @@ async function csvBody(request: IncomingMessage): Promise<Uint8Array> {
     chunks.push(chunk);
   }
   return Buffer.concat(chunks, size);
+}
+
+async function imageBody(request: IncomingMessage, accepted: readonly string[]): Promise<{ mediaType: string; bytes: Uint8Array }> {
+  const mediaType = request.headers['content-type']?.split(';')[0]?.trim() ?? '';
+  if (!accepted.includes(mediaType)) throw new ApplicationError('INVALID_INPUT', 'Formato de imagem não permitido.');
+  const maximum = 2 * 1024 * 1024;
+  const declaredSize = Number(request.headers['content-length'] ?? 0);
+  if (declaredSize > maximum) throw new ApplicationError('INVALID_INPUT', 'O arquivo não pode exceder 2 MB.');
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const part of request) {
+    const chunk = Buffer.isBuffer(part) ? part : Buffer.from(part);
+    size += chunk.length;
+    if (size > maximum) throw new ApplicationError('INVALID_INPUT', 'O arquivo não pode exceder 2 MB.');
+    chunks.push(chunk);
+  }
+  return { mediaType, bytes: Buffer.concat(chunks, size) };
 }
 
 function versionSummary(version: PublicCatalogVersion) {
@@ -215,6 +234,84 @@ export function createHttpServer(services: Services, options: { origin: string; 
       }
       if (request.method === 'GET' && url.pathname === '/api/platform/session') {
         json(response, 200, await services.platformIdentity.authenticate(token(request, 'platform_session'))); return;
+      }
+      if (url.pathname === '/api/platform/institution/document-profile' && request.method === 'GET') {
+        if ([...url.searchParams.keys()].some(key => key !== 'targetTenantId')) throw new ApplicationError('INVALID_INPUT', 'Dados inválidos.');
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const context = await services.institutionOperationContext.resolve(platform, url.searchParams.get('targetTenantId'));
+        json(response, 200, await services.institutionDocuments.getProfile(context)); return;
+      }
+      const profileLogo = url.pathname === '/api/platform/institution/document-profile/logo';
+      if (profileLogo && ['PUT', 'GET', 'DELETE'].includes(request.method ?? '')) {
+        if ([...url.searchParams.keys()].some(key => key !== 'targetTenantId')) throw new ApplicationError('INVALID_INPUT', 'Dados inválidos.');
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const context = await services.institutionOperationContext.resolve(platform, url.searchParams.get('targetTenantId'));
+        if (request.method === 'PUT') {
+          const image = await imageBody(request, ['image/png', 'image/svg+xml']);
+          await services.institutionDocuments.saveLogo(context, image.mediaType, image.bytes);
+          json(response, 200, await services.institutionDocuments.getProfile(context)); return;
+        }
+        if (request.method === 'DELETE') {
+          await services.institutionDocuments.deleteAsset(context, 'logo');
+          json(response, 200, { deleted: true }); return;
+        }
+        const asset = await services.institutionDocuments.getAsset(context, 'logo');
+        response.writeHead(200, { 'Content-Type': asset.mediaType, 'Content-Length': asset.bytes.byteLength,
+          'Content-Disposition': 'inline', 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-store' });
+        response.end(Buffer.from(asset.bytes)); return;
+      }
+      const employeeAsset = new RegExp(`^/api/platform/institution/employees/(${uuid})/(signature|stamp)$`, 'i').exec(url.pathname);
+      if (employeeAsset && ['PUT', 'GET', 'DELETE'].includes(request.method ?? '')) {
+        if ([...url.searchParams.keys()].some(key => key !== 'targetTenantId')) throw new ApplicationError('INVALID_INPUT', 'Dados inválidos.');
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const context = await services.institutionOperationContext.resolve(platform, url.searchParams.get('targetTenantId'));
+        const employeeId = employeeAsset[1]!;
+        const kind = employeeAsset[2] as 'signature' | 'stamp';
+        if (request.method === 'PUT') {
+          const image = await imageBody(request, ['image/png']);
+          await services.institutionDocuments.saveEmployeeAsset(context, employeeId, kind, image.mediaType, image.bytes);
+          json(response, 200, await services.institutionDocuments.getProfile(context)); return;
+        }
+        if (request.method === 'DELETE') {
+          await services.institutionDocuments.deleteEmployeeAsset(context, employeeId, kind);
+          json(response, 200, { deleted: true }); return;
+        }
+        const asset = await services.institutionDocuments.getEmployeeAsset(context, employeeId, kind);
+        response.writeHead(200, { 'Content-Type': asset.mediaType, 'Content-Length': asset.bytes.byteLength,
+          'Content-Disposition': 'inline', 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-store' });
+        response.end(Buffer.from(asset.bytes)); return;
+      }
+      if (url.pathname === '/api/platform/institution/employees' && request.method === 'POST') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['personId']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 201, await services.institutionDocuments.createEmployee(context, input.operation)); return;
+      }
+      if (url.pathname === '/api/platform/institution/employees/search' && request.method === 'POST') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), []);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 200, await services.institutionDocuments.listEmployees(context)); return;
+      }
+      const institutionEmployee = new RegExp(`^/api/platform/institution/employees/(${uuid})$`, 'i').exec(url.pathname);
+      if (institutionEmployee && request.method === 'PATCH') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['active']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 200, await services.institutionDocuments.updateEmployee(context, institutionEmployee[1]!, input.operation)); return;
+      }
+      if (institutionEmployee && request.method === 'DELETE') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), []);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        await services.institutionDocuments.deleteEmployee(context, institutionEmployee[1]!);
+        json(response, 200, { deleted: true }); return;
+      }
+      if (url.pathname === '/api/platform/institution/document-profile/positions' && request.method === 'PUT') {
+        const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
+        const input = targetInput(await body(request), ['directorEmployeeId', 'recordsOfficerEmployeeId']);
+        const context = await services.institutionOperationContext.resolve(platform, input.targetTenantId);
+        json(response, 200, await services.institutionDocuments.assignPositions(context, input.operation)); return;
       }
       if (request.method === 'POST' && url.pathname === '/api/platform/public-catalog/inep/preview') {
         const platform = await services.platformIdentity.authenticate(token(request, 'platform_session'));
