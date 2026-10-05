@@ -15,6 +15,14 @@ export function hasExecutedTests(output) {
   return match !== null && Number(match[1]) > 0;
 }
 
+export function commandForHiddenDisplay(command, args, platform = process.platform) {
+  if (platform !== 'linux') return { command, args: args.filter(argument => argument !== '--headed') };
+  return {
+    command: 'xvfb-run',
+    args: ['-a', '--server-args=-screen 0 1280x720x24', command, ...args],
+  };
+}
+
 export function planTicketE2ERun(repositoryRoot, ticketId, startedAt = new Date()) {
   const match = typeof ticketId === 'string' ? ticketIdPattern.exec(ticketId) : null;
   if (!match) throw new Error('Formato inválido de ticket; use feature/NN-slug.');

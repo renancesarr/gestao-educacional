@@ -18,6 +18,8 @@ import { createSqliteCredentialStore } from '../../../src/database/sqlite-creden
 import { createCredentialService } from '../../../src/credential/index.ts';
 import { createAcademicHistoryService } from '../../../src/academic/history.ts';
 import { createSqliteAcademicHistoryStore } from '../../../src/database/sqlite-academic-history-store.ts';
+import { createSqliteRegulatoryActStore } from '../../../src/database/sqlite-regulatory-act-store.ts';
+import { createRegulatoryActsService } from '../../../src/regulatory_acts/index.ts';
 import { createInstitutionOperationContextService, createSuperAdminService } from '../../../src/super_admin/index.ts';
 import { createPublicCatalogService } from '../../../src/public_catalog/index.ts';
 import { fixtureServices } from '../../../tests/support/fixture.ts';
@@ -57,7 +59,12 @@ copyFixtureRows('academic_courses', ['id', 'tenant_id', 'name', 'code', 'scope_c
 copyFixtureRows('academic_collaborators', ['id', 'tenant_id', 'person_id', 'active', 'created_at']);
 copyFixtureRows('academic_subjects', ['id', 'tenant_id', 'course_id', 'name', 'code', 'workload_hours', 'active', 'created_at']);
 copyFixtureRows('academic_subject_collaborators', ['tenant_id', 'subject_id', 'collaborator_id']);
-const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now, newId: randomUUID });
+const regulatoryActs = createRegulatoryActsService({ store: createSqliteRegulatoryActStore(database),
+  courses: { belongsToTenant: async (tenantId, courseId) => Boolean(await academicStore.getCourse(tenantId, courseId)) },
+  newId: randomUUID });
+const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now, newId: randomUUID,
+  regulatoryActs });
+const baselineAcademic = createAcademicService({ store: academicStore, people: globalPeople, now, newId: randomUUID });
 const credentialStore = createSqliteCredentialStore(database);
 const credentials = createCredentialService({ store: credentialStore, students: globalPeople, now, newId: randomUUID,
   newToken: () => randomUUID(), courses: { get: async (operation, courseId) => {
@@ -91,6 +98,7 @@ const services = {
   publicCatalog: createPublicCatalogService({ store: createSqlitePublicCatalogStore(catalogDatabase), now, newId: randomUUID }),
   credentials,
   academicHistory,
+  regulatoryActs,
 };
 const provisioned = await services.platformIdentity.provisionInitial({ username: 'root-cypress-e2e' });
 if (provisioned.activationCode !== 'fixture-one-time-activation-code') throw new Error('Activation fixture changed unexpectedly.');
@@ -104,7 +112,7 @@ if (process.env.GESTAO_E2E_TICKET === 'onboarding-super-admin/02-recuperar-conta
 const context = await services.institutionOperationContext.resolve(activated.principal, scenarioManifest.scenarios.school.tenant.id);
 const seededStudent = await services.globalPeople.create(context, { name: 'Aluno E2E preparado', institutionalId: 'aluno-e2e-preparado',
   cpf: '12345678901', birthMunicipality: 'Porto Velho', birthUf: 'RO' });
-const seededEnrollment = await services.globalAcademic.createEnrollment(context, {
+const seededEnrollment = await baselineAcademic.createEnrollment(context, {
   personId: seededStudent.id, courseId: preparedCourse.id,
 });
 if (seededEnrollment.status !== 'ativa' || seededEnrollment.personName !== 'Aluno E2E preparado') {

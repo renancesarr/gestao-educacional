@@ -19,6 +19,8 @@ import { createCredentialService } from '../../src/credential/index.ts';
 import { MemoryCredentialStore } from './memory-credential-store.ts';
 import { createAcademicHistoryService } from '../../src/academic/history.ts';
 import { MemoryAcademicHistoryStore } from './memory-academic-history-store.ts';
+import { createRegulatoryActsService } from '../../src/regulatory_acts/index.ts';
+import { MemoryRegulatoryActStore } from './memory-regulatory-act-store.ts';
 
 export async function fixtureServices() {
   const passwordHash = await hashPassword('senha-ficticia-longa');
@@ -35,8 +37,9 @@ export async function fixtureServices() {
   const institutionStore = new MemoryInstitutionOnboardingStore();
   const targetStore = new MemoryInstitutionTargetStore(accounts.map(account => account.tenantId));
   const globalPeople = createGlobalPeopleService({ store, now: () => new Date(), newId: randomUUID });
-  const globalAcademic = createAcademicService({ store: new MemoryAcademicStore({ tenantId: accounts[0]!.tenantId,
-    educationScope: [{ level: 'BASIC', stage: 'FUNDAMENTAL' }] }), people: globalPeople, now: () => new Date(), newId: randomUUID });
+  const academicStore = new MemoryAcademicStore({ tenantId: accounts[0]!.tenantId,
+    educationScope: [{ level: 'BASIC', stage: 'FUNDAMENTAL' }] });
+  const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now: () => new Date(), newId: randomUUID });
   const credentialStore = new MemoryCredentialStore();
   const credentials = createCredentialService({ store: credentialStore, now: () => new Date(), newId: randomUUID,
     newToken: () => randomBytes(32).toString('base64url'), students: globalPeople,
@@ -76,5 +79,8 @@ export async function fixtureServices() {
     globalAcademic,
     globalStudentSearch: createGlobalStudentSearchService({ people: globalPeople, academic: globalAcademic }),
     publicStudentSearch: createPublicStudentSearchService({ store: { search: async () => ({ students: [], total: 0 }) } }),
+    regulatoryActs: createRegulatoryActsService({ store: new MemoryRegulatoryActStore(),
+      courses: { belongsToTenant: async (tenantId, courseId) => Boolean(await academicStore.getCourse(tenantId, courseId)) },
+      newId: randomUUID }),
   };
 }

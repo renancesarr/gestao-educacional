@@ -11,7 +11,7 @@ test('the broad E2E command selects only the institutional platform journey', as
   const packageJson = JSON.parse(await readFile(join(repositoryRoot, 'frontend/package.json'), 'utf8'));
   const command = packageJson.scripts['test:e2e'];
 
-  assert.equal(command, 'cypress run --headed --browser electron --spec cypress/e2e/platform-journey.cy.ts');
+  assert.equal(command, 'node ../scripts/run-cypress-hidden.mjs run --headed --browser electron --spec cypress/e2e/platform-journey.cy.ts');
 });
 
 test('the ticket E2E runner selects its requested spec regardless of the broad command', () => {
@@ -21,5 +21,6 @@ test('the ticket E2E runner selects its requested spec regardless of the broad c
     '--spec',
     'cypress/e2e/tickets/consulta-alunos/02-busca-publica-limitada.cy.ts',
   ]);
-  assert.match(run.cypressArgs.join(' '), /--headed.*--browser electron/);
+  assert.equal(run.cypressArgs.includes('--headed'), true);
+  assert.match(run.cypressArgs.join(' '), /--browser electron.*video=true/);
 });

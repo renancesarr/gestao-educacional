@@ -41,8 +41,38 @@ export interface Enrollment {
   readonly courseId: string;
   readonly studentProfileId: string;
   readonly status: EnrollmentStatus;
+  readonly regulatoryActs?: readonly EnrollmentRegulatoryActSnapshot[];
+  readonly regulatoryException?: EnrollmentRegulatoryException;
   readonly createdAt: string;
   readonly updatedAt: string;
+}
+
+export interface EnrollmentRegulatoryActSelection {
+  readonly target: 'institution' | 'course';
+  readonly actId: string | null;
+  readonly versionId: string | null;
+}
+
+export interface EnrollmentRegulatoryException {
+  readonly responsibleId: string;
+  readonly recordedAt: string;
+  readonly reason: string;
+}
+
+export interface EnrollmentRegulatoryActSnapshot extends EnrollmentRegulatoryActSelection {
+  readonly versionNumber: number | null;
+  readonly text: string | null;
+  readonly status: 'ativo' | 'vencido' | 'suspenso' | 'revogado' | 'ausente';
+}
+
+export interface EnrollmentRegulatoryActReader {
+  get(context: InstitutionOperationContext, actId: string): Promise<{
+    id: string; target: 'institution' | 'course'; courseId?: string;
+    versions: readonly { id: string; number: number; text: string; status: EnrollmentRegulatoryActSnapshot['status'] }[];
+  }>;
+  registerUse(context: InstitutionOperationContext, actId: string, versionId: string, operation: {
+    readonly operationType: 'matricula'; readonly operationId: string;
+  }): Promise<void>;
 }
 
 export interface StudentCourseReference {
@@ -52,6 +82,8 @@ export interface StudentCourseReference {
   readonly courseCode: string;
   readonly status: EnrollmentStatus;
 }
+
+export type EnrollmentBeforeCommit = (enrollmentId: string) => Promise<void>;
 
 export interface Assessment {
   readonly id: string;
@@ -105,7 +137,8 @@ export interface AcademicStore {
   listSubjects(tenantId: string, courseId: string): Promise<readonly Subject[]>;
   updateSubject(subject: Subject): Promise<'updated' | 'missing'>;
   listCollaboratorsByIds(tenantId: string, collaboratorIds: readonly string[]): Promise<readonly Collaborator[]>;
-  createEnrollment(enrollment: Omit<Enrollment, 'studentProfileId'>, newStudentProfileId: string): Promise<Enrollment | 'conflict'>;
+  createEnrollment(enrollment: Omit<Enrollment, 'studentProfileId'>, newStudentProfileId: string,
+    beforeCommit?: EnrollmentBeforeCommit): Promise<Enrollment | 'conflict'>;
   listEnrollments(tenantId: string, courseId: string, status?: EnrollmentStatus): Promise<readonly Enrollment[]>;
   getEnrollment(tenantId: string, courseId: string, enrollmentId: string): Promise<Enrollment | null>;
   updateEnrollment(enrollment: Enrollment): Promise<Enrollment | null>;
@@ -293,7 +326,8 @@ function parseSubjectUpdate(input: unknown): { name?: string; workloadHours?: nu
   return update;
 }
 
-export function createAcademicService(deps: { store: AcademicStore; people: AcademicPersonReader; now: () => Date; newId: () => string }) {
+export function createAcademicService(deps: { store: AcademicStore; people: AcademicPersonReader; now: () => Date; newId: () => string;
+  regulatoryActs?: EnrollmentRegulatoryActReader }) {
   return {
     async createCourse(context: InstitutionOperationContext, input: unknown): Promise<Course> {
       const parsed = parseCourseInput(input);
@@ -398,11 +432,19 @@ export function createAcademicService(deps: { store: AcademicStore; people: Acad
       return { ...subject, collaborators };
     },
     async createEnrollment(context: InstitutionOperationContext, input: unknown): Promise<Enrollment> {
-      if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length !== 2 ||
+      if (!input || typeof input !== 'object' || Array.isArray(input) ||
           typeof (input as Record<string, unknown>).personId !== 'string' || typeof (input as Record<string, unknown>).courseId !== 'string') {
         throw new ApplicationError('INVALID_INPUT', 'Dados da matrícula inválidos.');
       }
-      const { personId, courseId } = input as { personId: string; courseId: string };
+      const value = input as Record<string, unknown>;
+      const allowed = deps.regulatoryActs ? ['personId', 'courseId', 'regulatoryActs', 'allowRegulatoryException', 'regulatoryExceptionReason'] : ['personId', 'courseId'];
+      if (Object.keys(value).some(key => !allowed.includes(key)) ||
+          (deps.regulatoryActs && (!('regulatoryActs' in value) ||
+            ('allowRegulatoryException' in value && typeof value.allowRegulatoryException !== 'boolean') ||
+            ('regulatoryExceptionReason' in value && typeof value.regulatoryExceptionReason !== 'string')))) {
+        throw new ApplicationError('INVALID_INPUT', 'Dados da matrícula inválidos.');
+      }
+      const { personId, courseId } = value as { personId: string; courseId: string };
       const person = await readOrWrite(() => deps.people.get(context, personId));
       if (person.tenantId !== context.tenantId) throw new ApplicationError('NOT_FOUND', 'Pessoa não encontrada.');
       const course = await readOrWrite(() => deps.store.getCourse(context.tenantId, courseId));
@@ -415,10 +457,63 @@ export function createAcademicService(deps: { store: AcademicStore; people: Acad
         if (collaborators.some(value => value.active)) { eligible = true; break; }
       }
       if (!eligible) throw new ApplicationError('CONFLICT', 'O curso precisa de matéria ativa com professor ativo para novas matrículas.');
+      let regulatoryActs: EnrollmentRegulatoryActSnapshot[] | undefined;
+      let regulatoryException: EnrollmentRegulatoryException | undefined;
+      if (deps.regulatoryActs) {
+        if (!Array.isArray(value.regulatoryActs) || value.regulatoryActs.length !== 2) {
+          throw new ApplicationError('INVALID_INPUT', 'Selecione um ato da instituição e um ato do curso.');
+        }
+        const selections = value.regulatoryActs as EnrollmentRegulatoryActSelection[];
+        if (selections.some(selection => !selection || typeof selection !== 'object' ||
+            !['institution', 'course'].includes(selection.target) ||
+            !((selection.actId === null && selection.versionId === null) ||
+              (typeof selection.actId === 'string' && !!selection.actId && typeof selection.versionId === 'string' && !!selection.versionId))) ||
+            new Set(selections.map(selection => selection.target)).size !== 2) {
+          throw new ApplicationError('INVALID_INPUT', 'Selecione um ato da instituição e um ato do curso.');
+        }
+        regulatoryActs = [];
+        let requiresException = false;
+        for (const target of ['institution', 'course'] as const) {
+          const selection = selections.find(item => item.target === target)!;
+          if (selection.actId === null || selection.versionId === null) {
+            requiresException = true;
+            regulatoryActs.push({ target, actId: null, versionId: null, versionNumber: null, text: null, status: 'ausente' });
+            continue;
+          }
+          const act = await readOrWrite(() => deps.regulatoryActs!.get(context, selection.actId!));
+          if (act.target !== target || (target === 'course' && act.courseId !== courseId)) {
+            throw new ApplicationError('INVALID_INPUT', 'O ato selecionado não pertence ao alvo desta matrícula.');
+          }
+          const version = act.versions.find(item => item.id === selection.versionId!);
+          if (!version) throw new ApplicationError('NOT_FOUND', 'Versão do ato regulatório não encontrada.');
+          if (version.status !== 'ativo') requiresException = true;
+          regulatoryActs.push({ target, actId: act.id, versionId: version.id, versionNumber: version.number,
+            text: version.text, status: version.status });
+        }
+        if (requiresException) {
+          const reason = typeof value.regulatoryExceptionReason === 'string' ? value.regulatoryExceptionReason.trim() : '';
+          if (value.allowRegulatoryException !== true || !reason || reason.length > 2000) {
+            throw new ApplicationError('CONFLICT', 'Ato ausente ou inativo: para permitir a matrícula, confirme a exceção e informe uma justificativa.');
+          }
+          regulatoryException = { responsibleId: context.actorId, recordedAt: deps.now().toISOString(), reason };
+        } else if (value.allowRegulatoryException === true || value.regulatoryExceptionReason !== undefined) {
+          throw new ApplicationError('INVALID_INPUT', 'Justificativa não necessária para atos ativos.');
+        }
+      }
       const now = deps.now().toISOString();
       const enrollment: Omit<Enrollment, 'studentProfileId'> = { id: deps.newId(), tenantId: context.tenantId,
-        personId, personName: person.name, courseId, status: 'ativa', createdAt: now, updatedAt: now };
-      const created = await readOrWrite(() => deps.store.createEnrollment(enrollment, deps.newId()));
+        personId, personName: person.name, courseId, status: 'ativa', regulatoryActs: regulatoryActs ?? [],
+        ...(regulatoryException ? { regulatoryException } : {}),
+        createdAt: now, updatedAt: now };
+      const registerRegulatoryActUses: EnrollmentBeforeCommit | undefined = deps.regulatoryActs && regulatoryActs
+        ? async enrollmentId => {
+          for (const act of regulatoryActs!) if (act.actId && act.versionId) {
+            await readOrWrite(() => deps.regulatoryActs!.registerUse(context, act.actId!, act.versionId!,
+              { operationType: 'matricula', operationId: enrollmentId }));
+          }
+        }
+        : undefined;
+      const created = await readOrWrite(() => deps.store.createEnrollment(enrollment, deps.newId(), registerRegulatoryActUses));
       if (created === 'conflict') throw new ApplicationError('CONFLICT', 'Esta pessoa já possui matrícula neste curso.');
       return created;
     },

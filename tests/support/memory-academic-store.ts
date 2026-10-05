@@ -89,10 +89,12 @@ export class MemoryAcademicStore implements AcademicStore {
     return structuredClone(this.#collaborators.filter(value => value.tenantId === tenantId && ids.has(value.id)));
   }
 
-  async createEnrollment(value: Omit<Enrollment, 'studentProfileId'>, newStudentProfileId: string): Promise<Enrollment | 'conflict'> {
+  async createEnrollment(value: Omit<Enrollment, 'studentProfileId'>, newStudentProfileId: string,
+    beforeCommit?: (enrollmentId: string) => Promise<void>): Promise<Enrollment | 'conflict'> {
     if (this.#enrollments.some(enrollment => enrollment.tenantId === value.tenantId && enrollment.courseId === value.courseId && enrollment.personId === value.personId)) return 'conflict';
     const key = `${value.tenantId}:${value.personId}`;
     const enrollment = { ...value, studentProfileId: this.#profiles.get(key) ?? newStudentProfileId };
+    await beforeCommit?.(value.id);
     this.#profiles.set(key, enrollment.studentProfileId);
     this.#enrollments.push(structuredClone(enrollment));
     return structuredClone(enrollment);

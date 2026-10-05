@@ -27,6 +27,8 @@ import { createSqliteCredentialStore } from './database/sqlite-credential-store.
 import { createCredentialService } from './credential/index.ts';
 import { createAcademicHistoryService } from './academic/history.ts';
 import { createSqliteAcademicHistoryStore } from './database/sqlite-academic-history-store.ts';
+import { createSqliteRegulatoryActStore } from './database/sqlite-regulatory-act-store.ts';
+import { createRegulatoryActsService } from './regulatory_acts/index.ts';
 
 const port = Number(process.env.PORT ?? '3000');
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT inválida.');
@@ -53,9 +55,14 @@ const platformIdentityStore = database ? createSqlitePlatformIdentityStore(datab
 if (!database) throw new Error('O catálogo público do MVP requer o adaptador SQLite.');
 const credentialStore = createSqliteCredentialStore(database);
 const academicHistoryStore = createSqliteAcademicHistoryStore(database);
+const regulatoryActStore = createSqliteRegulatoryActStore(database);
+const regulatoryActs = createRegulatoryActsService({ store: regulatoryActStore,
+  courses: { belongsToTenant: async (tenantId, courseId) => Boolean(await academicStore.getCourse(tenantId, courseId)) },
+  newId: randomUUID });
 const publicCatalog = createPublicCatalogService({ store: createSqlitePublicCatalogStore(database), now: () => new Date(), newId: randomUUID });
 const globalPeople = createGlobalPeopleService({ store, now: () => new Date(), newId: randomUUID });
-const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now: () => new Date(), newId: randomUUID });
+const globalAcademic = createAcademicService({ store: academicStore, people: globalPeople, now: () => new Date(), newId: randomUUID,
+  regulatoryActs });
 const publicStudentSearch = createPublicStudentSearchService({ store: createSqlitePublicStudentSearchStore(database!) });
 const server = createHttpServer({
   identity: createIdentityService({ store: identityStore, now: () => new Date(), newToken: () => randomBytes(32).toString('hex') }),
@@ -76,6 +83,7 @@ const server = createHttpServer({
   credentials: createCredentialService({ store: credentialStore, students: globalPeople, courses: { get: (context, courseId) => credentialStore.getCourseForCredential(context, courseId) },
     now: () => new Date(), newId: randomUUID, newToken: () => randomBytes(32).toString('base64url') }),
   academicHistory: createAcademicHistoryService({ store: academicHistoryStore, students: globalPeople, now: () => new Date(), newId: randomUUID }),
+  regulatoryActs,
 }, { origin });
 server.listen(port, process.env.HOST ?? '127.0.0.1', () => console.log(`Gestão acadêmica: ${origin}`));
 server.on('error', async () => { console.error('Não foi possível iniciar o servidor.'); await pool?.end(); database?.close(); process.exitCode = 1; });
