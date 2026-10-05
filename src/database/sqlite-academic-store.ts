@@ -1,5 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
-import type { AcademicStore, Assessment, Attendance, AttendanceStatus, Collaborator, Course, Enrollment, EnrollmentStatus, Grade, StudentCourseReference, Subject } from '../academic/index.ts';
+import type { AcademicStore, Assessment, Attendance, AttendanceStatus, Collaborator, Course, Enrollment, EnrollmentBeforeCommit, EnrollmentStatus, Grade, StudentCourseReference, Subject } from '../academic/index.ts';
 import type { InstitutionEducationScopeItem } from '../institution/index.ts';
 
 const scopeCode = (item: InstitutionEducationScopeItem): string => item.level === 'HIGHER'
@@ -251,7 +251,7 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
       return rows.map(row => ({ id: row.id, tenantId: row.tenant_id, personId: row.person_id, personName: row.name,
         active: Boolean(row.active), createdAt: row.created_at }));
     },
-    async createEnrollment(value, newStudentProfileId) {
+    async createEnrollment(value, newStudentProfileId, beforeCommit?: EnrollmentBeforeCommit) {
       database.exec('BEGIN IMMEDIATE');
       try {
         let profile = database.prepare(`SELECT id FROM academic_student_profiles WHERE tenant_id = ? AND person_id = ?`)
@@ -266,6 +266,7 @@ export function createSqliteAcademicStore(database: DatabaseSync): AcademicStore
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(value.id, value.tenantId, value.personId, value.courseId,
           profile.id, value.status, JSON.stringify(value.regulatoryActs ?? []),
           value.regulatoryException ? JSON.stringify(value.regulatoryException) : null, value.createdAt, value.updatedAt);
+        await beforeCommit?.(value.id);
         database.exec('COMMIT');
         return { ...value, studentProfileId: profile.id };
       } catch (error) {

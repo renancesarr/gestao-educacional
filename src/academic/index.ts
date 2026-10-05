@@ -83,6 +83,8 @@ export interface StudentCourseReference {
   readonly status: EnrollmentStatus;
 }
 
+export type EnrollmentBeforeCommit = (enrollmentId: string) => Promise<void>;
+
 export interface Assessment {
   readonly id: string;
   readonly tenantId: string;
@@ -135,7 +137,8 @@ export interface AcademicStore {
   listSubjects(tenantId: string, courseId: string): Promise<readonly Subject[]>;
   updateSubject(subject: Subject): Promise<'updated' | 'missing'>;
   listCollaboratorsByIds(tenantId: string, collaboratorIds: readonly string[]): Promise<readonly Collaborator[]>;
-  createEnrollment(enrollment: Omit<Enrollment, 'studentProfileId'>, newStudentProfileId: string): Promise<Enrollment | 'conflict'>;
+  createEnrollment(enrollment: Omit<Enrollment, 'studentProfileId'>, newStudentProfileId: string,
+    beforeCommit?: EnrollmentBeforeCommit): Promise<Enrollment | 'conflict'>;
   listEnrollments(tenantId: string, courseId: string, status?: EnrollmentStatus): Promise<readonly Enrollment[]>;
   getEnrollment(tenantId: string, courseId: string, enrollmentId: string): Promise<Enrollment | null>;
   updateEnrollment(enrollment: Enrollment): Promise<Enrollment | null>;
@@ -502,14 +505,16 @@ export function createAcademicService(deps: { store: AcademicStore; people: Acad
         personId, personName: person.name, courseId, status: 'ativa', regulatoryActs: regulatoryActs ?? [],
         ...(regulatoryException ? { regulatoryException } : {}),
         createdAt: now, updatedAt: now };
-      const created = await readOrWrite(() => deps.store.createEnrollment(enrollment, deps.newId()));
-      if (created === 'conflict') throw new ApplicationError('CONFLICT', 'Esta pessoa já possui matrícula neste curso.');
-      if (deps.regulatoryActs && regulatoryActs) {
-        for (const act of regulatoryActs) if (act.actId && act.versionId) {
-          await readOrWrite(() => deps.regulatoryActs!.registerUse(context, act.actId!, act.versionId!,
-            { operationType: 'matricula', operationId: created.id }));
+      const registerRegulatoryActUses: EnrollmentBeforeCommit | undefined = deps.regulatoryActs && regulatoryActs
+        ? async enrollmentId => {
+          for (const act of regulatoryActs!) if (act.actId && act.versionId) {
+            await readOrWrite(() => deps.regulatoryActs!.registerUse(context, act.actId!, act.versionId!,
+              { operationType: 'matricula', operationId: enrollmentId }));
+          }
         }
-      }
+        : undefined;
+      const created = await readOrWrite(() => deps.store.createEnrollment(enrollment, deps.newId(), registerRegulatoryActUses));
+      if (created === 'conflict') throw new ApplicationError('CONFLICT', 'Esta pessoa já possui matrícula neste curso.');
       return created;
     },
     async listEnrollments(context: InstitutionOperationContext, courseId: string, statusInput?: unknown) {
